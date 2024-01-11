@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Piano</title>
+    <link rel="stylesheet" type="text/css" href="Keyboard15.css">
+</head>
+<body>
+    <div class="controls">
+        <div class="note-display">
+            <span id="noteName">Note: None</span>
+        </div>
+        <div class="dropdowns">
+            <label for="rootSelect">Root:</label>
+            <select id="rootSelect">
+                <option value="none" selected>None</option>
+                <option value="C">C</option>
+                <option value="C# / Db">C# / Db</option>
+                <option value="D">D</option>
+                <option value="D# / Eb">D# / Eb</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="F# / Gb">F# / Gb</option>
+                <option value="G">G</option>
+                <option value="G# / Ab">G# / Ab</option>
+                <option value="A">A</option>
+                <option value="A# / Bb">A# / Bb</option>
+            </select>
+
+            <div class="jam-card-container">
+            <label for="jamCardSelect">Jam Card:</label>
+            <select id="jamCardSelect">
+                <option value="none" selected>None</option>
+                <option value="majorPentatonic">Scale: Major Pentatonic</option>
+                <option value="minorPentatonic">Scale: Minor Pentatonic</option>
+                <option value="major">Scale: Major</option>
+                <option value="minor">Scale: Minor</option>
+                <option value="blues">Scale: Blues</option>
+                <option value="chordsMajor">Chords: Major</option>
+                <option value="chordsMinor">Chords: Minor</option>
+            </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="piano">
+        <!-- Key Containers -->
+        <div class="key-container">
+            <div class="white-key" id="C3"></div>
+            <div class="black-key" id="C#3 / Db3"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="D3"></div>
+            <div class="black-key" id="D#3 / Eb3"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="E3"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="F3"></div>
+            <div class="black-key" id="F#3 / Gb3"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="G3"></div>
+            <div class="black-key" id="G#3 / Ab3"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="A3"></div>
+            <div class="black-key" id="A#3 / Bb3"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="B3"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="C4"></div>
+            <div class="black-key" id="C#4 / Db4"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="D4"></div>
+            <div class="black-key" id="D#4 / Eb4"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="E4"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="F4"></div>
+            <div class="black-key" id="F#4 / Gb4"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="G4"></div>
+            <div class="black-key" id="G#4 / Ab4"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="A4"></div>
+            <div class="black-key" id="A#4 / Bb4"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="B4"></div>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="C5"></div>
+        </div>
+    </div>
+
+    <script src="Keyboard15.js"></script>
+</body>
+</html>
