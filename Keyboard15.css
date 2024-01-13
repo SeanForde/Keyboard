@@ -1,3 +1,9 @@
+/* Prevent double-tap zoom */
+html, body {
+    touch-action: manipulation;
+    overflow: hidden; /* Prevent scrolling */
+}
+
 @media (max-width: 600px) { /* Adjust the breakpoint as needed */
     .dropdowns {
         flex-direction: column;
@@ -19,13 +25,14 @@
 
 /* Hide the piano and show the alert in portrait mode */
 @media screen and (orientation: portrait) {
-    .piano {
+    .piano, .controls {
         display: none;
     }
 
     #orientationAlert {
         display: block;
         text-align: center;
+        font-size: 4em; /* 4 times bigger text */
         /* Add more styling as needed */
     }
 }
@@ -135,3 +142,4 @@ body {
 .black-key:nth-child(1) { left: 70%; } /* For C3# */
 .black-key:nth-child(2) { left: 90%; } /* For D3# */
 /* Add similar lines for each black key */
+
