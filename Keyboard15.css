@@ -17,6 +17,20 @@
 }
 
 
+/* Hide the piano and show the alert in portrait mode */
+@media screen and (orientation: portrait) {
+    .piano {
+        display: none;
+    }
+
+    #orientationAlert {
+        display: block;
+        text-align: center;
+        /* Add more styling as needed */
+    }
+}
+
+
 body {
     margin: 0;
     display: flex;
@@ -96,7 +110,7 @@ body {
 }
 
 .white-key {
-    height: 20vh; /* Adjust for desired height */
+    height: 40vh; /* Adjust for desired height */
     width: 100%;
     background-color: #FFFFFF; /* White keys */
     border: 1px solid #727F95; /* Cool Gray 1 for border */
@@ -105,7 +119,7 @@ body {
 }
 
 .black-key {
-    height: 12vh; /* Adjust for desired height */
+    height: 24vh; /* Adjust for desired height */
     width: 60%;
     background-color: #000000; /* Black keys */
     position: absolute;
@@ -116,12 +130,6 @@ body {
     box-shadow: 0 0.2vh #666;
     cursor: pointer;
 }
-
-/* Example overrides for specific black keys */
-.black-key:nth-child(1) { left: 70%; } /* For C3# */
-.black-key:nth-child(2) { left: 90%; } /* For D3# */
-/* Add similar lines for each black key */
-
 
 /* Example overrides for specific black keys */
 .black-key:nth-child(1) { left: 70%; } /* For C3# */
