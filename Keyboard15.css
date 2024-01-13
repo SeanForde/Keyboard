@@ -96,7 +96,7 @@ body {
 }
 
 .white-key {
-    height: 40vh; /* Adjust for desired height */
+    height: 20vh; /* Adjust for desired height */
     width: 100%;
     background-color: #FFFFFF; /* White keys */
     border: 1px solid #727F95; /* Cool Gray 1 for border */
@@ -105,7 +105,7 @@ body {
 }
 
 .black-key {
-    height: 24vh; /* Adjust for desired height */
+    height: 12vh; /* Adjust for desired height */
     width: 60%;
     background-color: #000000; /* Black keys */
     position: absolute;
