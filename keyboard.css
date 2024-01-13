@@ -1,3 +1,22 @@
+@media (max-width: 600px) { /* Adjust the breakpoint as needed */
+    .dropdowns {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dropdown-group {
+        width: 100%; /* Full width on smaller screens */
+    }
+}
+
+@media (max-width: 600px) {
+    select, label {
+        font-size: larger; /* Increase font size for better readability and touch */
+        padding: 10px; /* Larger padding for easier interaction */
+    }
+}
+
+
 body {
     margin: 0;
     display: flex;
@@ -10,8 +29,8 @@ body {
 }
 
 .controls {
-    text-align: center;
-    margin-bottom: 20px;
+    text-align: left;
+    margin-bottom: 10px;
     background-color: #8C52DB; /* Primary Purple */
     padding: 10px;
     border-radius: 10px;
@@ -19,14 +38,38 @@ body {
     width: 80%;
 }
 
+.control-item {
+    font-size: 2em; /* Adjust this size as needed */
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.control-item-selects {
+    font-size: 1.5em; /* Adjust this size as needed */
+    margin-bottom: 10px;
+    text-align: center;
+}
+
 .note-display {
     margin-bottom: 10px;
-    font-size: 1.2em;
+
 }
 
 .dropdowns {
-    margin-bottom: 10px;
+    display: flex;
+    justify-content: left; /* Aligns children (dropdown groups) horizontally center */
+    gap: 0px; /* Adds some space between the dropdown groups */
+    margin-left: 100px;
 }
+
+.dropdown-group {
+    display: flex;
+    align-items: center; /* Aligns items vertically center */
+    gap: 10px; /* Space between label and select */
+    flex-grow: 1;
+}
+
+
 
 .dropdowns select {
     margin-right: 10px;
@@ -49,11 +92,11 @@ body {
 .key-container {
     position: relative;
     display: inline-block;
-    width: 4vw; /* Adjust as needed */
+    width: 5vw; /* Adjust as needed */
 }
 
 .white-key {
-    height: 20vh; /* Adjust for desired height */
+    height: 40vh; /* Adjust for desired height */
     width: 100%;
     background-color: #FFFFFF; /* White keys */
     border: 1px solid #727F95; /* Cool Gray 1 for border */
@@ -62,7 +105,7 @@ body {
 }
 
 .black-key {
-    height: 12vh; /* Adjust for desired height */
+    height: 24vh; /* Adjust for desired height */
     width: 60%;
     background-color: #000000; /* Black keys */
     position: absolute;
@@ -73,6 +116,12 @@ body {
     box-shadow: 0 0.2vh #666;
     cursor: pointer;
 }
+
+/* Example overrides for specific black keys */
+.black-key:nth-child(1) { left: 70%; } /* For C3# */
+.black-key:nth-child(2) { left: 90%; } /* For D3# */
+/* Add similar lines for each black key */
+
 
 /* Example overrides for specific black keys */
 .black-key:nth-child(1) { left: 70%; } /* For C3# */
