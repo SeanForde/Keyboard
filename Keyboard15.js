@@ -104,6 +104,8 @@ function getNoteKeyIds(note) {
     return noteToKeyId[note] || []; // Return all occurrences of the note
 }
 
+//Jam Card Selection Logic
+
 function colorPentatonicScale(rootNote, chromaticScale) {
     const cardTones = [2, 4, 7, 9]; // Intervals for Major Pentatonic scale
 
@@ -122,6 +124,26 @@ function colorPentatonicScale(rootNote, chromaticScale) {
         });
     });
 }
+
+function colorMinorPentatonicScale(rootNote, chromaticScale) {
+    const cardTones = [3, 5, 7, 10]; // Intervals for Minor Pentatonic scale
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        cardTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#3E78F1'); // Or another color to differentiate from major pentatonic
+            });
+        });
+    });
+}
+
 
 
 
@@ -163,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     rootSelect.addEventListener('change', function() {
         // Clear previous root keys designation
-        var keys = document.querySelectorAll('.root-key');
+        const keys = document.querySelectorAll('.root-key');
         keys.forEach(function(key) {
             key.classList.remove('root-key');
         });
@@ -180,29 +202,33 @@ document.addEventListener("DOMContentLoaded", function() {
             colorRootNotes(this.value);
             
             // Recalculate and recolor card tones based on the new root and selected jam card
-            if (jamCardSelect.value !== 'none') {
-                colorPentatonicScale(this.value, [
-                    "C", "C# / Db", "D", "D# / Eb", "E", "F", "F# / Gb", 
-                    "G", "G# / Ab", "A", "A# / Bb", "B"
-                ]);
+            if (jamCardSelect.value === 'majorPentatonic') {
+                colorPentatonicScale(this.value, chromaticScale);
+            } else if (jamCardSelect.value === 'minorPentatonic') {
+                colorMinorPentatonicScale(this.value, chromaticScale);
+            } else {
+                clearCardTones();  // Clear card tones if no jam card is selected or for other jam cards
             }
         }
     });
     
+    
 
     jamCardSelect.addEventListener('change', function() {
         const rootNote = rootSelect.value;
-        const chromaticScale = [
-            "C", "C# / Db", "D", "D# / Eb", "E", "F", "F# / Gb", 
-            "G", "G# / Ab", "A", "A# / Bb", "B"
-        ];
+        clearCardTones();
 
-        if (this.value === 'majorPentatonic' && rootNote !== 'none') {
-            colorPentatonicScale(rootNote, chromaticScale);
-        } else {
-            clearCardTones();
+        if (rootNote !== 'none') {
+            if (this.value === 'majorPentatonic') {
+                colorPentatonicScale(rootNote, chromaticScale);
+            } else if (this.value === 'minorPentatonic') {
+                colorMinorPentatonicScale(rootNote, chromaticScale);
+            } else {
+                clearCardTones();
+            }
         }
     });
+    
 
     // Initially hide the jamCardSelect and label
     jamCardSelect.style.display = 'none';
