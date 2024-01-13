@@ -106,6 +106,23 @@ function getNoteKeyIds(note) {
     return noteToKeyId[note] || []; // Return all occurrences of the note
 }
 
+function checkOrientation() {
+    if (window.innerHeight > window.innerWidth) {
+        // Portrait mode
+        document.getElementById('orientationAlert').style.display = 'block';
+        document.querySelector('.piano').style.display = 'none';
+    } else {
+        // Landscape mode
+        document.getElementById('orientationAlert').style.display = 'none';
+        document.querySelector('.piano').style.display = 'block';
+    }
+}
+
+// Check orientation on load and on resize
+window.addEventListener('load', checkOrientation);
+window.addEventListener('resize', checkOrientation);
+
+
 
 
 document.addEventListener("DOMContentLoaded", function() {
