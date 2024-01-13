@@ -1,30 +1,42 @@
-function handleKeyPress(note) {
-    document.getElementById('noteName').textContent = 'Note: ' + note;
+const noteMapping = {
+    1: "C3", 2: "C#3 / Db3", 3: "D3", 4: "D#3 / Eb3", 5: "E3", 
+    6: "F3", 7: "F#3 / Gb3", 8: "G3", 9: "G#3 / Ab3", 10: "A3", 
+    11: "A#3 / Bb3", 12: "B3", 13: "C4", 14: "C#4 / Db4", 15: "D4", 
+    16: "D#4 / Eb4", 17: "E4", 18: "F4", 19: "F#4 / Gb4", 20: "G4", 
+    21: "G#4 / Ab4", 22: "A4", 23: "A#4 / Bb4", 24: "B4", 25: "C5"
+};
+
+function handleKeyPress(noteNumber) {
+    const noteName = noteMapping[noteNumber];
+    document.getElementById('noteName').textContent = 'Note: ' + noteName;
 }
 
-function resetKeyColors() {
+function clearCardTones() {
     var keys = document.querySelectorAll('.white-key, .black-key');
     keys.forEach(function(key) {
-        key.style.backgroundColor = key.classList.contains('white-key') ? '#FFFFFF' : '#000000';
+        // Reset only non-root keys
+        if (!key.classList.contains('root-key')) {
+            key.style.backgroundColor = key.classList.contains('white-key') ? '#FFFFFF' : '#000000';
+        }
     });
 }
 
 function colorRootNotes(rootNote) {
-    resetKeyColors();
+    clearCardTones();
 
     var noteToIdMapping = {
-        "C": ["C3", "C4"],
-        "C# / Db": ["C#3 / Db3", "C#4 / Db4"],
-        "D": ["D3", "D4"],
-        "D# / Eb": ["D#3 / Eb3", "D#4 / Eb4"],
-        "E": ["E3", "E4"],
-        "F": ["F3", "F4"],
-        "F# / Gb": ["F#4 / Gb4", "F#5 / Gb5"],
-        "G": ["G3", "G4"],
-        "G# / Ab": ["G#4 / Ab4", "G#5 / Ab5"],
-        "A": ["A3", "A4"],
-        "A# / Bb": ["A#4 / Bb4", "A#5 / Bb5"],
-        "B": ["B3", "B4"],
+        "C": [1, 13, 25],
+        "C# / Db": [2, 14],
+        "D": [3, 15],
+        "D# / Eb": [4, 16],
+        "E": [5, 17],
+        "F": [6, 18],
+        "F# / Gb": [7, 19],
+        "G": [8, 20],
+        "G# / Ab": [9, 21],
+        "A": [10, 22],
+        "A# / Bb": [11, 23],
+        "B": [12, 24],
     };
 
     var rootKeyIds = noteToIdMapping[rootNote];
@@ -33,44 +45,74 @@ function colorRootNotes(rootNote) {
         rootKeyIds.forEach(function(keyId) {
             var keyElement = document.getElementById(keyId);
             if (keyElement) {
+                keyElement.classList.add('root-key');
                 keyElement.style.backgroundColor = '#8C52DB';
             }
         });
     }
 }
 
-function getNoteAtInterval(rootNote, interval, chromaticScale) {
-    let rootIndex = chromaticScale.indexOf(rootNote);
-    if (rootIndex === -1) {
-        return null;
+function getAllIndices(arr, val) {
+    let indices = [], i = -1;
+    while ((i = arr.indexOf(val, i + 1)) !== -1){
+        indices.push(i);
     }
+    return indices;
+}
 
-    let noteIndex = (rootIndex + interval) % chromaticScale.length;
-    return chromaticScale[noteIndex];
+function colorKey(keyId, color) {
+    let keyElement = document.getElementById(keyId.toString());
+    if (keyElement && !keyElement.classList.contains('root-key')) {
+        keyElement.style.backgroundColor = color;
+    }
 }
 
 function colorPentatonicScale(rootNote, chromaticScale) {
-    resetKeyColors();
+    const cardTones = [2, 4, 7, 9]; // Intervals for Major Pentatonic scale
 
-    const intervals = [0, 2, 4, 7, 9]; // Intervals for Major Pentatonic scale
-    [3, 4].forEach(octave => {
-        intervals.forEach(interval => {
-            const note = getNoteAtInterval(rootNote, interval, chromaticScale);
-            if (note) {
-                let noteId = note + octave;
-                let keyElement = document.getElementById(noteId);
-                if (keyElement) {
-                    keyElement.style.backgroundColor = interval === 0 ? '#8C52DB' : '#3E78F1';
-                }
-            }
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        cardTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#3E78F1');
+            });
         });
     });
 }
+
+function getNoteKeyIds(note) {
+    // Mapping of note names to their corresponding key IDs
+    const noteToKeyId = {
+        "C": [1, 13, 25],
+        "C# / Db": [2, 14],
+        "D": [3, 15],
+        "D# / Eb": [4, 16],
+        "E": [5, 17],
+        "F": [6, 18],
+        "F# / Gb": [7, 19],
+        "G": [8, 20],
+        "G# / Ab": [9, 21],
+        "A": [10, 22],
+        "A# / Bb": [11, 23],
+        "B": [12, 24]
+    };
+
+    return noteToKeyId[note] || []; // Return all occurrences of the note
+}
+
+
 
 document.addEventListener("DOMContentLoaded", function() {
     var keys = document.querySelectorAll('.white-key, .black-key');
     var rootSelect = document.getElementById('rootSelect');
     var jamCardSelect = document.getElementById('jamCardSelect');
+    var jamCardLabel = document.querySelector('label[for="jamCardSelect"]');
     var jamCardContainer = document.querySelector('.jam-card-container');
 
     keys.forEach(function(key) {
@@ -80,12 +122,33 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     rootSelect.addEventListener('change', function() {
-        colorRootNotes(this.value);
-
-        var showJamCard = this.value !== 'none';
-        jamCardContainer.style.display = showJamCard ? 'block' : 'none';
-        if (!showJamCard) jamCardSelect.value = 'none';
+        // Clear previous root keys designation
+        var keys = document.querySelectorAll('.root-key');
+        keys.forEach(function(key) {
+            key.classList.remove('root-key');
+        });
+    
+        // Hide or show jamCardSelect and label based on root selection
+        if (this.value === 'none') {
+            jamCardSelect.style.display = 'none';
+            jamCardLabel.style.display = 'none';
+            jamCardSelect.value = 'none';
+            clearCardTones();
+        } else {
+            jamCardSelect.style.display = 'block';
+            jamCardLabel.style.display = 'block';
+            colorRootNotes(this.value);
+            
+            // Recalculate and recolor card tones based on the new root and selected jam card
+            if (jamCardSelect.value !== 'none') {
+                colorPentatonicScale(this.value, [
+                    "C", "C# / Db", "D", "D# / Eb", "E", "F", "F# / Gb", 
+                    "G", "G# / Ab", "A", "A# / Bb", "B"
+                ]);
+            }
+        }
     });
+    
 
     jamCardSelect.addEventListener('change', function() {
         const rootNote = rootSelect.value;
@@ -97,9 +160,12 @@ document.addEventListener("DOMContentLoaded", function() {
         if (this.value === 'majorPentatonic' && rootNote !== 'none') {
             colorPentatonicScale(rootNote, chromaticScale);
         } else {
-            resetKeyColors();
+            clearCardTones();
         }
     });
 
+    // Initially hide the jamCardSelect and label
+    jamCardSelect.style.display = 'none';
+    jamCardLabel.style.display = 'none';
     jamCardContainer.style.display = 'none';
 });
