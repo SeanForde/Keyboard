@@ -6,6 +6,23 @@ const noteMapping = {
     21: "G#4 / Ab4", 22: "A4", 23: "A#4 / Bb4", 24: "B4", 25: "C5"
 };
 
+const noteToIdMapping = {
+    "C": [1, 13, 25],
+    "C# / Db": [2, 14],
+    "D": [3, 15],
+    "D# / Eb": [4, 16],
+    "E": [5, 17],
+    "F": [6, 18],
+    "F# / Gb": [7, 19],
+    "G": [8, 20],
+    "G# / Ab": [9, 21],
+    "A": [10, 22],
+    "A# / Bb": [11, 23],
+    "B": [12, 24],
+};
+
+const chromaticScale = ["C", "C# / Db", "D", "D# / Eb", "E", "F", "F# / Gb", "G", "G# / Ab", "A", "A# / Bb", "B"];
+
 function handleKeyPress(noteNumber) {
     const noteName = noteMapping[noteNumber];
     document.getElementById('noteName').textContent = 'Note: ' + noteName;
@@ -67,25 +84,6 @@ function colorKey(keyId, color) {
     }
 }
 
-function colorPentatonicScale(rootNote, chromaticScale) {
-    const cardTones = [2, 4, 7, 9]; // Intervals for Major Pentatonic scale
-
-    let rootIndices = getAllIndices(chromaticScale, rootNote);
-    if (rootIndices.length === 0) {
-        return; // Exit if root note not found
-    }
-
-    rootIndices.forEach(rootIndex => {
-        cardTones.forEach(interval => {
-            let noteIndex = (rootIndex + interval) % chromaticScale.length;
-            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
-            keyIds.forEach(keyId => {
-                colorKey(keyId, '#3E78F1');
-            });
-        });
-    });
-}
-
 function getNoteKeyIds(note) {
     // Mapping of note names to their corresponding key IDs
     const noteToKeyId = {
@@ -106,15 +104,40 @@ function getNoteKeyIds(note) {
     return noteToKeyId[note] || []; // Return all occurrences of the note
 }
 
+function colorPentatonicScale(rootNote, chromaticScale) {
+    const cardTones = [2, 4, 7, 9]; // Intervals for Major Pentatonic scale
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        cardTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#3E78F1');
+            });
+        });
+    });
+}
+
+
+
 function checkOrientation() {
+    const orientationAlert = document.getElementById('orientationAlert');
+    const piano = document.querySelector('.piano');
+    const controls = document.querySelector('.controls');
+
     if (window.innerHeight > window.innerWidth) {
-        // Portrait mode
-        document.getElementById('orientationAlert').style.display = 'block';
-        document.querySelector('.piano').style.display = 'none';
+        orientationAlert.style.display = 'block';
+        piano.style.display = 'none';
+        controls.style.display = 'none';
     } else {
-        // Landscape mode
-        document.getElementById('orientationAlert').style.display = 'none';
-        document.querySelector('.piano').style.display = 'block';
+        orientationAlert.style.display = 'none';
+        piano.style.display = 'block';
+        controls.style.display = 'block';
     }
 }
 
@@ -186,3 +209,21 @@ document.addEventListener("DOMContentLoaded", function() {
     jamCardLabel.style.display = 'none';
     jamCardContainer.style.display = 'none';
 });
+
+function checkOrientation() {
+    if (window.innerHeight > window.innerWidth) {
+        // Portrait mode
+        document.getElementById('orientationAlert').style.display = 'block';
+        document.querySelector('.piano').style.display = 'none';
+        document.querySelector('.controls').style.display = 'none';
+    } else {
+        // Landscape mode
+        document.getElementById('orientationAlert').style.display = 'none';
+        document.querySelector('.piano').style.display = 'block';
+        document.querySelector('.controls').style.display = 'block';
+    }
+}
+
+// Check orientation on load and on resize
+window.addEventListener('load', checkOrientation);
+window.addEventListener('resize', checkOrientation);
