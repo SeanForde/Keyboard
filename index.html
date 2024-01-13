@@ -6,38 +6,40 @@
 </head>
 <body>
     <div class="controls">
-        <div class="note-display">
+        <div class="note-display control-item">
             <span id="noteName">Note: None</span>
         </div>
         <div class="dropdowns">
-            <label for="rootSelect">Root:</label>
-            <select id="rootSelect">
-                <option value="none" selected>None</option>
-                <option value="C">C</option>
-                <option value="C# / Db">C# / Db</option>
-                <option value="D">D</option>
-                <option value="D# / Eb">D# / Eb</option>
-                <option value="E">E</option>
-                <option value="F">F</option>
-                <option value="F# / Gb">F# / Gb</option>
-                <option value="G">G</option>
-                <option value="G# / Ab">G# / Ab</option>
-                <option value="A">A</option>
-                <option value="A# / Bb">A# / Bb</option>
-            </select>
-
-            <div class="jam-card-container">
-            <label for="jamCardSelect">Jam Card:</label>
-            <select id="jamCardSelect">
-                <option value="none" selected>None</option>
-                <option value="majorPentatonic">Scale: Major Pentatonic</option>
-                <option value="minorPentatonic">Scale: Minor Pentatonic</option>
-                <option value="major">Scale: Major</option>
-                <option value="minor">Scale: Minor</option>
-                <option value="blues">Scale: Blues</option>
-                <option value="chordsMajor">Chords: Major</option>
-                <option value="chordsMinor">Chords: Minor</option>
-            </select>
+            <div class="dropdown-group">
+                <label class="control-item" for="rootSelect">Root:</label>
+                <select id="rootSelect" class="control-item-selects">
+                    <option value="none" selected>None</option>
+                    <option value="C">C</option>
+                    <option value="C# / Db">C# / Db</option>
+                    <option value="D">D</option>
+                    <option value="D# / Eb">D# / Eb</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="F# / Gb">F# / Gb</option>
+                    <option value="G">G</option>
+                    <option value="G# / Ab">G# / Ab</option>
+                    <option value="A">A</option>
+                    <option value="A# / Bb">A# / Bb</option>
+                    <option value="B">B</option>
+                </select>
+            </div>
+            <div class="dropdown-group">
+                <label class="control-item" for="jamCardSelect">Jam Card:</label>
+                <select id="jamCardSelect" class="control-item-selects">
+                    <option value="none" selected>None</option>
+                    <option value="majorPentatonic">Scale: Major Pentatonic</option>
+                    <option value="minorPentatonic">Scale: Minor Pentatonic</option>
+                    <option value="major">Scale: Major</option>
+                    <option value="minor">Scale: Minor</option>
+                    <option value="blues">Scale: Blues</option>
+                    <option value="chordsMajor">Chords: Major</option>
+                    <option value="chordsMinor">Chords: Minor</option>
+                </select>
             </div>
         </div>
     </div>
@@ -45,62 +47,73 @@
     <div class="piano">
         <!-- Key Containers -->
         <div class="key-container">
-            <div class="white-key" id="C3"></div>
-            <div class="black-key" id="C#3 / Db3"></div>
+            <div class="white-key" id="1"></div>
+            <div class="black-key" id="2"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="D3"></div>
-            <div class="black-key" id="D#3 / Eb3"></div>
+            <div class="white-key" id="3"></div>
+            <div class="black-key" id="4"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="E3"></div>
+            <div class="white-key" id="5"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="F3"></div>
-            <div class="black-key" id="F#3 / Gb3"></div>
+            <div class="white-key" id="6"></div>
+            <div class="black-key" id="7"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="G3"></div>
-            <div class="black-key" id="G#3 / Ab3"></div>
+            <div class="white-key" id="8"></div>
+            <div class="black-key" id="9"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="A3"></div>
-            <div class="black-key" id="A#3 / Bb3"></div>
+            <div class="white-key" id="10"></div>
+            <div class="black-key" id="11"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="B3"></div>
+            <div class="white-key" id="12"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="C4"></div>
-            <div class="black-key" id="C#4 / Db4"></div>
+            <div class="white-key" id="13"></div>
+            <div class="black-key" id="14"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="D4"></div>
-            <div class="black-key" id="D#4 / Eb4"></div>
+            <div class="white-key" id="15"></div>
+            <div class="black-key" id="16"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="E4"></div>
+            <div class="white-key" id="17"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="F4"></div>
-            <div class="black-key" id="F#4 / Gb4"></div>
+            <div class="white-key" id="18"></div>
+            <div class="black-key" id="19"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="G4"></div>
-            <div class="black-key" id="G#4 / Ab4"></div>
+            <div class="white-key" id="20"></div>
+            <div class="black-key" id="21"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="A4"></div>
-            <div class="black-key" id="A#4 / Bb4"></div>
+            <div class="white-key" id="22"></div>
+            <div class="black-key" id="23"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="B4"></div>
+            <div class="white-key" id="24"></div>
         </div>
         <div class="key-container">
-            <div class="white-key" id="C5"></div>
+            <div class="white-key" id="25"></div>
         </div>
     </div>
 
     <script src="Keyboard15.js"></script>
+    <script>
+        // Ensure the DOM is fully loaded before attaching event listeners
+        document.addEventListener("DOMContentLoaded", function() {
+            const keys = document.querySelectorAll('.white-key, .black-key');
+            keys.forEach(function(key) {
+                key.addEventListener('click', function() {
+                    handleKeyPress(key.id); // key.id is the note number
+                });
+            });
+        });
+    </script>
 </body>
 </html>
