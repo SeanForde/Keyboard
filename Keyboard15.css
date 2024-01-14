@@ -101,6 +101,29 @@ body {
     color: #101D32; /* Dark Stone */
 }
 
+.jam-along-controls {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.jam-along-controls label {
+    margin: 0;
+}
+
+#jamAlongSelect, #playAlongVolume {
+    margin: 0 5px;
+}
+
+#playStopButton {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+
 .piano {
     display: flex;
     align-items: start;
