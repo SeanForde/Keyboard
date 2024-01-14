@@ -1,3 +1,30 @@
+let audioFiles = {};
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Preloading audio files
+    Object.keys(noteMapping).forEach(noteId => {
+        const noteName = noteMapping[noteId];
+        audioFiles[noteName] = new Audio('keyboardNotes/' + noteName + '.mp3');
+    });
+
+    // ... Rest of your initialization code
+
+    const keys = document.querySelectorAll('.white-key, .black-key');
+    keys.forEach(key => key.addEventListener('click', () => {
+        const noteName = noteMapping[key.id];
+        playNote(noteName);
+    }));
+});
+
+function playNote(noteName) {
+    if (audioFiles[noteName]) {
+        audioFiles[noteName].play();
+    }
+}
+
+// ... Rest of your JavaScript code
+
+
 const noteMapping = {
     1: "C3", 2: "C#3 / Db3", 3: "D3", 4: "D#3 / Eb3", 5: "E3", 
     6: "F3", 7: "F#3 / Gb3", 8: "G3", 9: "G#3 / Ab3", 10: "A3", 
@@ -144,8 +171,131 @@ function colorMinorPentatonicScale(rootNote, chromaticScale) {
     });
 }
 
+function colorMajorScale(rootNote, chromaticScale) {
+    const cardTones = [2, 4, 5, 7, 9, 11]; // Intervals for Major scale
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        cardTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#3E78F1'); // Use a distinct color for the Major scale
+            });
+        });
+    });
+}
+
+function colorHarmonicMinorScale(rootNote, chromaticScale) {
+    const cardTones = [2, 3, 5, 7, 8, 11]; // Intervals for Harmonic Minor scale
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        cardTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#3E78F1'); // Use a distinct color for the Harmonic Minor scale
+            });
+        });
+    });
+}
 
 
+
+function colorBluesScale(rootNote, chromaticScale) {
+    const cardTones = [3, 5, 6, 7, 10]; // Intervals for Blues scale
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        cardTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                // Special color for interval 10
+                const color = interval === 6 ? '#DC387D' : '#3E78F1';
+                colorKey(keyId, color);
+            });
+        });
+    });
+}
+
+function colorMajorChords(rootNote, chromaticScale) {
+    const chordTones = [4, 7]; // Intervals for Major chord
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        chordTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#3E78F1'); // Use a distinct color for Major chords
+            });
+        });
+    });
+}
+
+function colorMinorChords(rootNote, chromaticScale) {
+    const chordTones = [3, 7]; // Intervals for Minor chord
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        chordTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#3E78F1'); // Use a distinct color for Minor chords
+            });
+        });
+    });
+}
+
+function colorDominant7thChords(rootNote, chromaticScale) {
+    const chordTones = [4, 7, 10]; // Intervals for Dominant 7th chord
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        chordTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#3E78F1'); // Use a distinct color for Dominant 7th chords
+            });
+        });
+    });
+}
+
+function playNote(note) {
+    const audio = new Audio('keyboardNotes/' + note + '.mp3');
+    audio.play();
+}
+
+
+//Orientation and Event Listeners
 
 function checkOrientation() {
     const orientationAlert = document.getElementById('orientationAlert');
@@ -184,51 +334,93 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     rootSelect.addEventListener('change', function() {
-        // Clear previous root keys designation
         const keys = document.querySelectorAll('.root-key');
         keys.forEach(function(key) {
             key.classList.remove('root-key');
         });
     
-        // Hide or show jamCardSelect and label based on root selection
-        if (this.value === 'none') {
+        if (this.value !== 'none') {
+            jamCardSelect.style.display = 'block';
+            jamCardLabel.style.display = 'block';
+            colorRootNotes(this.value);
+    
+            switch (jamCardSelect.value) {
+                case 'majorPentatonic':
+                    colorPentatonicScale(this.value, chromaticScale);
+                    break;
+                case 'minorPentatonic':
+                    colorMinorPentatonicScale(this.value, chromaticScale);
+                    break;
+                case 'major':
+                    colorMajorScale(this.value, chromaticScale);
+                    break;
+                case 'harmonicMinor':
+                    colorHarmonicMinorScale(this.value, chromaticScale);
+                    break;
+                case 'blues':
+                    colorBluesScale(this.value, chromaticScale);
+                    break;
+                case 'chordsMajor':
+                    colorMajorChords(this.value, chromaticScale);
+                    break;
+                case 'chordsMinor':
+                    colorMinorChords(this.value, chromaticScale);
+                    break;
+                case 'chordsDominant7th':
+                    colorDominant7thChords(this.value, chromaticScale);
+                    break;
+                default:
+                    clearCardTones();
+                    break;
+            }
+        } else {
             jamCardSelect.style.display = 'none';
             jamCardLabel.style.display = 'none';
             jamCardSelect.value = 'none';
             clearCardTones();
-        } else {
-            jamCardSelect.style.display = 'block';
-            jamCardLabel.style.display = 'block';
-            colorRootNotes(this.value);
-            
-            // Recalculate and recolor card tones based on the new root and selected jam card
-            if (jamCardSelect.value === 'majorPentatonic') {
-                colorPentatonicScale(this.value, chromaticScale);
-            } else if (jamCardSelect.value === 'minorPentatonic') {
-                colorMinorPentatonicScale(this.value, chromaticScale);
-            } else {
-                clearCardTones();  // Clear card tones if no jam card is selected or for other jam cards
-            }
         }
     });
+    
+    
     
     
 
     jamCardSelect.addEventListener('change', function() {
         const rootNote = rootSelect.value;
         clearCardTones();
-
+    
         if (rootNote !== 'none') {
-            if (this.value === 'majorPentatonic') {
-                colorPentatonicScale(rootNote, chromaticScale);
-            } else if (this.value === 'minorPentatonic') {
-                colorMinorPentatonicScale(rootNote, chromaticScale);
-            } else {
-                clearCardTones();
+            switch (this.value) {
+                case 'majorPentatonic':
+                    colorPentatonicScale(rootNote, chromaticScale);
+                    break;
+                case 'minorPentatonic':
+                    colorMinorPentatonicScale(rootNote, chromaticScale);
+                    break;
+                case 'major':
+                    colorMajorScale(rootNote, chromaticScale);
+                    break;
+                case 'harmonicMinor':
+                    colorHarmonicMinorScale(rootNote, chromaticScale);
+                    break;
+                case 'blues':
+                    colorBluesScale(rootNote, chromaticScale);
+                    break;
+                case 'chordsMajor':
+                    colorMajorChords(rootNote, chromaticScale);
+                    break;
+                case 'chordsMinor':
+                    colorMinorChords(rootNote, chromaticScale);
+                    break;
+                case 'chordsDominant7th':
+                    colorDominant7thChords(rootNote, chromaticScale);
+                    break;
+                default:
+                    clearCardTones();
+                    break;
             }
         }
     });
-    
 
     // Initially hide the jamCardSelect and label
     jamCardSelect.style.display = 'none';
