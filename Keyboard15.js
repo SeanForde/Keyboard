@@ -1,29 +1,3 @@
-let audioFiles = {};
-
-document.addEventListener("DOMContentLoaded", function() {
-    // Preloading audio files
-    Object.keys(noteMapping).forEach(noteId => {
-        const noteName = noteMapping[noteId];
-        audioFiles[noteName] = new Audio('keyboardNotes/' + noteName + '.mp3');
-    });
-
-    // ... Rest of your initialization code
-
-    const keys = document.querySelectorAll('.white-key, .black-key');
-    keys.forEach(key => key.addEventListener('click', () => {
-        const noteName = noteMapping[key.id];
-        playNote(noteName);
-    }));
-});
-
-function playNote(noteName) {
-    if (audioFiles[noteName]) {
-        audioFiles[noteName].play();
-    }
-}
-
-// ... Rest of your JavaScript code
-
 
 const noteMapping = {
     1: "C3", 2: "C#3 / Db3", 3: "D3", 4: "D#3 / Eb3", 5: "E3", 
@@ -49,6 +23,30 @@ const noteToIdMapping = {
 };
 
 const chromaticScale = ["C", "C# / Db", "D", "D# / Eb", "E", "F", "F# / Gb", "G", "G# / Ab", "A", "A# / Bb", "B"];
+
+let audioFiles = {};
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Preloading audio files
+    Object.keys(noteMapping).forEach(noteId => {
+        const noteName = noteMapping[noteId];
+        audioFiles[noteName] = new Audio('keyboardNotes/' + noteName + '.mp3');
+    });
+
+    // ... Rest of your initialization code
+
+    const keys = document.querySelectorAll('.white-key, .black-key');
+    keys.forEach(key => key.addEventListener('click', () => {
+        const noteName = noteMapping[key.id];
+        playNote(noteName);
+    }));
+});
+
+function playNote(noteName) {
+    if (audioFiles[noteName]) {
+        audioFiles[noteName].play();
+    }
+}
 
 function handleKeyPress(noteNumber) {
     const noteName = noteMapping[noteNumber];
@@ -294,6 +292,60 @@ function playNote(note) {
     audio.play();
 }
 
+// Play-Along Audio Control
+let jamAlongAudio = null;
+
+function loadJamAlongTrack(trackName) {
+    if (jamAlongAudio) {
+        jamAlongAudio.pause();
+        jamAlongAudio = null;
+    }
+    jamAlongAudio = new Audio('jamAlongs/' + trackName + '.mp3');
+    jamAlongAudio.loop = true;
+    const jamAlongVolume = document.getElementById('jamAlongVolume');
+    jamAlongAudio.volume = jamAlongVolume.value / 100;
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    // ... [Existing code for piano keys and jam cards] ...
+
+    // Play-Along Controls
+    const jamAlongSelect = document.getElementById('jamAlongSelect');
+    const playStopButton = document.getElementById('playStopButton');
+    const jamAlongVolume = document.getElementById('jamAlongVolume');
+
+    jamAlongSelect.addEventListener('change', function() {
+        if (jamAlongAudio) {
+            jamAlongAudio.pause();
+            jamAlongAudio.currentTime = 0;
+            playStopButton.textContent = 'Play';
+        }
+        loadJamAlongTrack(this.value);
+    });
+
+    playStopButton.addEventListener('click', function() {
+        if (jamAlongAudio && !jamAlongAudio.paused) {
+            jamAlongAudio.pause();
+            this.textContent = 'Play';
+        } else {
+            loadJamAlongTrack(jamAlongSelect.value);
+            jamAlongAudio.play();
+            this.textContent = 'Stop';
+        }
+    });
+
+    jamAlongVolume.addEventListener('input', function() {
+        if (jamAlongAudio) {
+            jamAlongAudio.volume = this.value / 100;
+        }
+    });
+
+    // Load the initial track
+    loadJamAlongTrack(jamAlongSelect.value);
+});
+
+
+
 
 //Orientation and Event Listeners
 
@@ -326,6 +378,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var jamCardSelect = document.getElementById('jamCardSelect');
     var jamCardLabel = document.querySelector('label[for="jamCardSelect"]');
     var jamCardContainer = document.querySelector('.jam-card-container');
+    
 
     keys.forEach(function(key) {
         key.addEventListener('click', function() {
