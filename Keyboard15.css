@@ -1,41 +1,73 @@
 /* Prevent double-tap zoom */
-html, body {
+html,
+body {
     touch-action: manipulation;
-    overflow: hidden; /* Prevent scrolling */
+    overflow: hidden;
+    /* Prevent scrolling */
 }
 
-@media (max-width: 600px) { /* Adjust the breakpoint as needed */
-    .dropdowns {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .dropdown-group {
-        width: 100%; /* Full width on smaller screens */
-    }
+header {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 1.5em;
+    color: #FFFFFF;
+    /* Adjust color to fit your design */
 }
+
+h1 {
+    margin: 0;
+    padding: 10px;
+    /* Add any additional styling you want for the header text */
+}
+
+
 
 @media (max-width: 600px) {
-    select, label {
-        font-size: larger; /* Increase font size for better readability and touch */
-        padding: 10px; /* Larger padding for easier interaction */
+
+    select,
+    label {
+        font-size: larger;
+        /* Increase font size for better readability and touch */
+        padding: 10px;
+        /* Larger padding for easier interaction */
     }
 }
 
 
 /* Hide the piano and show the alert in portrait mode */
 @media screen and (orientation: portrait) {
-    .piano, .controls {
+
+    .piano,
+    .controls {
         display: none;
     }
 
     #orientationAlert {
         display: block;
         text-align: center;
-        font-size: 4em; /* 4 times bigger text */
-        /* Add more styling as needed */
+        font-size: 4em;
+        color: #42E2D9;
+
+        .piano,
+        .controls {
+
+            display: none;
+        }
     }
 }
+
+/* Show piano and controls, and hide orientation alert in landscape mode */
+@media screen and (orientation: landscape) {
+    #orientationAlert {
+        display: none;
+    }
+
+    .piano,
+    .controls {
+        display: block;
+    }
+}
+
 
 
 body {
@@ -44,125 +76,233 @@ body {
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    background-color: #D2D7E9; /* Cool Gray 3 */
-    color: #101D32; /* Dark Stone */
+    background-color: black;
+    /* Cool Gray 3 */
+    color: #101D32;
+    /* Dark Stone */
     font-family: Arial, sans-serif;
 }
 
 .controls {
-    text-align: left;
-    margin-bottom: 10px;
-    background-color: #8C52DB; /* Primary Purple */
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    /* 6 columns */
+    grid-template-rows: auto auto auto;
+    /* 3 rows */
+    gap: 10px;
+    /* Space between grid items */
     padding: 10px;
+    /* Padding around the grid */
+    text-align: center;
+    margin-bottom: 10px;
+    background-color: #8C52DB;
+    /* Primary Purple */
     border-radius: 10px;
-    color: #FFFFFF; /* White text for better contrast */
+    color: #FFFFFF;
+    /* White text for better contrast */
     width: 80%;
 }
 
-.control-item {
-    font-size: 2em; /* Adjust this size as needed */
-    margin-bottom: 10px;
+
+.jam-card-controls {
+    display: grid;
+    grid-column: 1 / 3;
+    /* Span 2 columns */
+    grid-row: 1 / span 3;
+    /* Span all 3 rows */
     text-align: center;
-}
-
-.control-item-selects {
-    font-size: 1.5em; /* Adjust this size as needed */
-    margin-bottom: 10px;
-    text-align: center;
-}
-
-.note-display {
-    margin-bottom: 10px;
-
-}
-
-.dropdowns {
-    display: flex;
-    justify-content: left; /* Aligns children (dropdown groups) horizontally center */
-    gap: 0px; /* Adds some space between the dropdown groups */
-    margin-left: 100px;
-}
-
-.dropdown-group {
-    display: flex;
-    align-items: center; /* Aligns items vertically center */
-    gap: 10px; /* Space between label and select */
-    flex-grow: 1;
-}
-
-
-
-.dropdowns select {
-    margin-right: 10px;
-    padding: 5px 10px;
-    border: 1px solid #727F95; /* Cool Gray 1 */
-    border-radius: 5px;
-    background-color: #D8A7FF; /* Purple Light */
-    color: #101D32; /* Dark Stone */
-}
-
-.jam-along-controls {
-    border: 1px solid #ccc;
+    border: 1px solid #AFC9FF;
     padding: 10px;
     margin-top: 10px;
-    display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.jam-along-controls label {
-    margin: 0;
+.title {
+    font-weight: bold;
+    text-align: left;
+    vertical-align: top;
 }
 
-#jamAlongSelect, #playAlongVolume {
+.jamTrack {
+    display: grid;
+    grid-column: 1 / span 2;
+    /* Span 2 columns */
+    grid-row: 2 / span 2;
+    /* Span all 3 rows */
+    text-align: center;
+}
+
+.expression-controls {
+    display: grid;
+    grid-column: 4 / span 2;
+    /* Span 2 columns */
+    grid-row: 2 / span 2;
+    /* Span all 3 rows */
+    text-align: center;
+}
+
+.note-display-controls {
+    grid-column: 3 / span 1;
+    /* Span 1 column */
+    grid-row: 1 / span 3;
+    /* Span all 3 rows */
+    text-align: center;
+    border: 1px solid #AFC9FF;
+    padding: 10px;
+    margin-top: 10px;
+    display: grid;
+    align-items: center;
+    gap: 10px;
+}
+
+.jam-along-controls {
+    grid-column: 4 / span 3;
+    /* Span 3 columns */
+    grid-row: 1 / span 3;
+    /* Span all 3 rows */
+    border: 1px solid #AFC9FF;
+    padding: 10px;
+    margin-top: 10px;
+    display: grid;
+    align-items: center;
+    gap: 10px;
+}
+
+
+#jamAlongSelect,
+#playAlongVolume {
     margin: 0 5px;
 }
 
 #playStopButton {
-    padding: 5px 10px;
+    margin-top: 10px;
+    padding: 10px 20px;
+    /* Increase padding for a larger button */
+    background-color: #DC387D;
+    /* Green background color */
+    color: white;
+    /* White text color */
+    border: none;
+    /* Remove border */
+    border-radius: 5px;
+    /* Add rounded corners */
+    font-size: 1.2em;
+    /* Increase font size */
     cursor: pointer;
+    transition: background-color 0.3s ease;
+    /* Add a smooth hover effect */
+}
+
+#playStopButton:hover {
+    background-color: #FFA0C6;
+    /* Darker green on hover */
+}
+
+.note-toggle {
+    margin: 10px;
+    text-align: center;
+    color: #42E2D9;
+}
+
+.radio-button {
+    display: inline-block;
+    /* or 'inline' depending on your layout */
+    margin-right: 10px;
+    /* Space between radio button groups */
 }
 
 
 .piano {
     display: flex;
     align-items: start;
-    border: 3px solid #42E2D9; /* Turquoise */
+    border: 3px solid #42E2D9;
+    /* Turquoise */
     border-radius: 10px;
-    background-color: #727F95; /* Cool Gray 1 */
+    background-color: #727F95;
+    /* Cool Gray 1 */
     padding: 10px;
 }
 
 .key-container {
     position: relative;
     display: inline-block;
-    width: 5vw; /* Adjust as needed */
+    width: 5vw;
+    /* Adjust as needed */
 }
 
 .white-key {
-    height: 40vh; /* Adjust for desired height */
+    height: 40vh;
+    /* Adjust for desired height */
     width: 100%;
-    background-color: #FFFFFF; /* White keys */
-    border: 1px solid #727F95; /* Cool Gray 1 for border */
+    background-color: #FFFFFF;
+    /* White keys */
+    border: 1px solid #727F95;
+    /* Cool Gray 1 for border */
     box-shadow: 0 0.3vh #999;
     cursor: pointer;
 }
 
 .black-key {
-    height: 24vh; /* Adjust for desired height */
+    height: 24vh;
+    /* Adjust for desired height */
     width: 60%;
-    background-color: #000000; /* Black keys */
+    background-color: #000000;
+    /* Black keys */
     position: absolute;
     top: 0;
-    left: 70%; /* Adjust as needed */
+    left: 70%;
+    /* Adjust as needed */
     z-index: 1;
-    border: 1px solid #727F95; /* Cool Gray 1 for border */
+    border: 1px solid #727F95;
+    /* Cool Gray 1 for border */
     box-shadow: 0 0.2vh #666;
     cursor: pointer;
 }
 
 /* Example overrides for specific black keys */
-.black-key:nth-child(1) { left: 70%; } /* For C3# */
-.black-key:nth-child(2) { left: 90%; } /* For D3# */
+.black-key:nth-child(1) {
+    left: 70%;
+}
+
+/* For C3# */
+.black-key:nth-child(2) {
+    left: 90%;
+}
+
+/* For D3# */
 /* Add similar lines for each black key */
 
+.note-name-white {
+    position: absolute;
+    top: 90%;
+    /* Adjust as needed */
+    left: 50%;
+    /* Center horizontally */
+    transform: translateX(-50%);
+    /* Adjust horizontal centering */
+    color: black;
+    /* or white, depending on key color */
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 1;
+    font-size: 1.2em;
+    /* Prevents the note name from interfering with key clicks */
+}
+
+.note-name-black {
+    position: absolute;
+    top: 40%;
+    /* Adjust as needed */
+    left: 100%;
+    /* Center horizontally */
+    transform: translateX(-50%);
+    /* Adjust horizontal centering */
+    color: rgb(255, 255, 255);
+    /* or white, depending on key color */
+    font-weight: bold;
+    pointer-events: none;
+    text-align: center;
+    z-index: 1;
+    /* Prevents the note name from interfering with key clicks */
+}
