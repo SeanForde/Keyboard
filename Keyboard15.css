@@ -26,9 +26,9 @@ h1 {
 
     select,
     label {
-        font-size: larger;
+        font-size: medium;
         /* Increase font size for better readability and touch */
-        padding: 10px;
+        padding: 0px;
         /* Larger padding for easier interaction */
     }
 }
