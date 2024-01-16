@@ -1,9 +1,8 @@
-
 const noteMapping = {
-    1: "C3", 2: "C#3 / Db3", 3: "D3", 4: "D#3 / Eb3", 5: "E3", 
-    6: "F3", 7: "F#3 / Gb3", 8: "G3", 9: "G#3 / Ab3", 10: "A3", 
-    11: "A#3 / Bb3", 12: "B3", 13: "C4", 14: "C#4 / Db4", 15: "D4", 
-    16: "D#4 / Eb4", 17: "E4", 18: "F4", 19: "F#4 / Gb4", 20: "G4", 
+    1: "C3", 2: "C#3 / Db3", 3: "D3", 4: "D#3 / Eb3", 5: "E3",
+    6: "F3", 7: "F#3 / Gb3", 8: "G3", 9: "G#3 / Ab3", 10: "A3",
+    11: "A#3 / Bb3", 12: "B3", 13: "C4", 14: "C#4 / Db4", 15: "D4",
+    16: "D#4 / Eb4", 17: "E4", 18: "F4", 19: "F#4 / Gb4", 20: "G4",
     21: "G#4 / Ab4", 22: "A4", 23: "A#4 / Bb4", 24: "B4", 25: "C5"
 };
 
@@ -26,14 +25,12 @@ const chromaticScale = ["C", "C# / Db", "D", "D# / Eb", "E", "F", "F# / Gb", "G"
 
 let audioFiles = {};
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     // Preloading audio files
     Object.keys(noteMapping).forEach(noteId => {
         const noteName = noteMapping[noteId];
         audioFiles[noteName] = new Audio('keyboardNotes/' + noteName + '.mp3');
     });
-
-    // ... Rest of your initialization code
 
     const keys = document.querySelectorAll('.white-key, .black-key');
     keys.forEach(key => key.addEventListener('click', () => {
@@ -50,12 +47,12 @@ function playNote(noteName) {
 
 function handleKeyPress(noteNumber) {
     const noteName = noteMapping[noteNumber];
-    document.getElementById('noteName').textContent = 'Note: ' + noteName;
+    document.getElementById('noteName').textContent = noteName;
 }
 
 function clearCardTones() {
     var keys = document.querySelectorAll('.white-key, .black-key');
-    keys.forEach(function(key) {
+    keys.forEach(function (key) {
         // Reset only non-root keys
         if (!key.classList.contains('root-key')) {
             key.style.backgroundColor = key.classList.contains('white-key') ? '#FFFFFF' : '#000000';
@@ -84,7 +81,7 @@ function colorRootNotes(rootNote) {
     var rootKeyIds = noteToIdMapping[rootNote];
 
     if (rootKeyIds) {
-        rootKeyIds.forEach(function(keyId) {
+        rootKeyIds.forEach(function (keyId) {
             var keyElement = document.getElementById(keyId);
             if (keyElement) {
                 keyElement.classList.add('root-key');
@@ -96,7 +93,7 @@ function colorRootNotes(rootNote) {
 
 function getAllIndices(arr, val) {
     let indices = [], i = -1;
-    while ((i = arr.indexOf(val, i + 1)) !== -1){
+    while ((i = arr.indexOf(val, i + 1)) !== -1) {
         indices.push(i);
     }
     return indices;
@@ -306,15 +303,14 @@ function loadJamAlongTrack(trackName) {
     jamAlongAudio.volume = jamAlongVolume.value / 100;
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    // ... [Existing code for piano keys and jam cards] ...
+document.addEventListener("DOMContentLoaded", function () {
 
     // Play-Along Controls
     const jamAlongSelect = document.getElementById('jamAlongSelect');
     const playStopButton = document.getElementById('playStopButton');
     const jamAlongVolume = document.getElementById('jamAlongVolume');
 
-    jamAlongSelect.addEventListener('change', function() {
+    jamAlongSelect.addEventListener('change', function () {
         if (jamAlongAudio) {
             jamAlongAudio.pause();
             jamAlongAudio.currentTime = 0;
@@ -323,7 +319,7 @@ document.addEventListener("DOMContentLoaded", function() {
         loadJamAlongTrack(this.value);
     });
 
-    playStopButton.addEventListener('click', function() {
+    playStopButton.addEventListener('click', function () {
         if (jamAlongAudio && !jamAlongAudio.paused) {
             jamAlongAudio.pause();
             this.textContent = 'Play';
@@ -334,7 +330,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    jamAlongVolume.addEventListener('input', function() {
+    jamAlongVolume.addEventListener('input', function () {
         if (jamAlongAudio) {
             jamAlongAudio.volume = this.value / 100;
         }
@@ -344,59 +340,48 @@ document.addEventListener("DOMContentLoaded", function() {
     loadJamAlongTrack(jamAlongSelect.value);
 });
 
+document.addEventListener("DOMContentLoaded", function () {
 
+    const jamAlongTempo = document.getElementById('jamAlongTempo');
 
+    jamAlongTempo.addEventListener('input', function () {
+        if (jamAlongAudio) {
+            jamAlongAudio.playbackRate = this.value / 100;
+        }
+    });
 
-//Orientation and Event Listeners
-
-function checkOrientation() {
-    const orientationAlert = document.getElementById('orientationAlert');
-    const piano = document.querySelector('.piano');
-    const controls = document.querySelector('.controls');
-
-    if (window.innerHeight > window.innerWidth) {
-        orientationAlert.style.display = 'block';
-        piano.style.display = 'none';
-        controls.style.display = 'none';
-    } else {
-        orientationAlert.style.display = 'none';
-        piano.style.display = 'block';
-        controls.style.display = 'block';
-    }
-}
-
-// Check orientation on load and on resize
-window.addEventListener('load', checkOrientation);
-window.addEventListener('resize', checkOrientation);
+});
 
 
 
 
-document.addEventListener("DOMContentLoaded", function() {
+
+
+document.addEventListener("DOMContentLoaded", function () {
     var keys = document.querySelectorAll('.white-key, .black-key');
     var rootSelect = document.getElementById('rootSelect');
     var jamCardSelect = document.getElementById('jamCardSelect');
     var jamCardLabel = document.querySelector('label[for="jamCardSelect"]');
     var jamCardContainer = document.querySelector('.jam-card-container');
-    
 
-    keys.forEach(function(key) {
-        key.addEventListener('click', function() {
+
+    keys.forEach(function (key) {
+        key.addEventListener('click', function () {
             handleKeyPress(key.id);
         });
     });
 
-    rootSelect.addEventListener('change', function() {
+    rootSelect.addEventListener('change', function () {
         const keys = document.querySelectorAll('.root-key');
-        keys.forEach(function(key) {
+        keys.forEach(function (key) {
             key.classList.remove('root-key');
         });
-    
+
         if (this.value !== 'none') {
             jamCardSelect.style.display = 'block';
             jamCardLabel.style.display = 'block';
             colorRootNotes(this.value);
-    
+
             switch (jamCardSelect.value) {
                 case 'majorPentatonic':
                     colorPentatonicScale(this.value, chromaticScale);
@@ -433,15 +418,15 @@ document.addEventListener("DOMContentLoaded", function() {
             clearCardTones();
         }
     });
-    
-    
-    
-    
 
-    jamCardSelect.addEventListener('change', function() {
+
+
+
+
+    jamCardSelect.addEventListener('change', function () {
         const rootNote = rootSelect.value;
         clearCardTones();
-    
+
         if (rootNote !== 'none') {
             switch (this.value) {
                 case 'majorPentatonic':
@@ -481,17 +466,26 @@ document.addEventListener("DOMContentLoaded", function() {
     jamCardContainer.style.display = 'none';
 });
 
+
+
+
 function checkOrientation() {
+    const orientationAlert = document.getElementById('orientationAlert');
+    const piano = document.querySelector('.piano');
+    const controls = document.querySelector('.controls');
+
     if (window.innerHeight > window.innerWidth) {
-        // Portrait mode
-        document.getElementById('orientationAlert').style.display = 'block';
-        document.querySelector('.piano').style.display = 'none';
-        document.querySelector('.controls').style.display = 'none';
+        orientationAlert.style.display = 'block';
+        piano.style.display = 'none';
+        controls.style.display = 'none';
+        title.style.display = 'none';
+        document.body.style.overflow = 'hidden'; // Disable scrolling
     } else {
-        // Landscape mode
-        document.getElementById('orientationAlert').style.display = 'none';
-        document.querySelector('.piano').style.display = 'block';
-        document.querySelector('.controls').style.display = 'block';
+        orientationAlert.style.display = 'none';
+        piano.style.display = 'block';
+        controls.style.display = 'grid';
+        title.style.display = 'block';
+        document.body.style.overflow = 'auto'; // Enable scrolling
     }
 }
 
