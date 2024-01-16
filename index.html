@@ -1,308 +1,219 @@
-/* Prevent double-tap zoom */
-html,
-body {
-    touch-action: manipulation;
-    overflow: hidden;
-    /* Prevent scrolling */
-}
+<!DOCTYPE html>
+<html>
 
-header {
-    text-align: center;
-    margin-top: 10px;
-    font-size: 1.5em;
-    color: #FFFFFF;
-    /* Adjust color to fit your design */
-}
+<head>
+    <title>Music Will Interactive Piano</title>
+    <link rel="stylesheet" type="text/css" href="Keyboard15.css">
+</head>
 
-h1 {
-    margin: 0;
-    padding: 10px;
-    /* Add any additional styling you want for the header text */
-}
+<body>
+    <!-- Orientation Alert -->
+    <div id="orientationAlert" style="display:none;">
+        Please rotate your device to landscape mode.
+    </div>
 
+    <!-- Title -->
+    <div id="title">
+        <header>
+            <h1>Music Will Interactive Keyboard</h1>
+        </header>
+    </div>
+    <div class="controls">
 
+        <!-- Root Section -->
 
-@media (max-width: 600px) {
+        <div class="jam-card-controls">
+            <div class="title">Jam Cards</div>
+            <label class="roots" for="rootSelect">Root:</label>
+            <select id="rootSelect" class="roots">
+                <option value="none" selected>None</option>
+                <option value="C">C</option>
+                <option value="C# / Db">C# / Db</option>
+                <option value="D">D</option>
+                <option value="D# / Eb">D# / Eb</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="F# / Gb">F# / Gb</option>
+                <option value="G">G</option>
+                <option value="G# / Ab">G# / Ab</option>
+                <option value="A">A</option>
+                <option value="A# / Bb">A# / Bb</option>
+                <option value="B">B</option>
+            </select>
+            <label class="jam-cards" for="jamCardSelect">Jam Card:</label>
+            <select id="jamCardSelect" class="jam-cards">
+                <option value="none" selected>None</option>
+                <option value="majorPentatonic">Scale: Major Pentatonic</option>
+                <option value="minorPentatonic">Scale: Minor Pentatonic</option>
+                <option value="major">Scale: Major</option>
+                <option value="harmonicMinor">Scale: Harmonic Minor</option>
+                <option value="blues">Scale: Blues</option>
+                <option value="chordsMajor">Chords: Major</option>
+                <option value="chordsMinor">Chords: Minor</option>
+                <option value="chordsDominant7th">Chords: Dominant 7th</option>
+            </select>
+        </div>
 
-    select,
-    label {
-        font-size: larger;
-        /* Increase font size for better readability and touch */
-        padding: 10px;
-        /* Larger padding for easier interaction */
-    }
-}
+        <!-- Note Display Section -->
+        <div class="note-display-controls">
+            <div class="title">Note</div>
+            <br>
+            <span id="noteName">None</span>
+        </div>
 
+        <!-- Jam Alongs Section -->
+        <div class="jam-along-controls">
+            <div class="title">Jam Alongs</div>
+            <div class="jamTrack">
+                <select id="jamAlongSelect">
+                    <option value="Beat 1">Beat 1</option>
+                    <option value="Beat 2">Beat 2</option>
+                    <option value="Beat 3">Beat 3</option>
+                    <option value="Beat 4">Beat 4</option>
+                </select>
 
-/* Hide the piano and show the alert in portrait mode */
-@media screen and (orientation: portrait) {
+                <button id="playStopButton">Play</button>
+            </div>
+            <div class="expression-controls">
+                <label for="jamAlongVolume">Volume:</label>
+                <input type="range" id="jamAlongVolume" min="0" max="100" value="50">
+                <br>
+                <label for="jamAlongTempo">Tempo:</label>
+                <input type="range" id="jamAlongTempo" min="60" max="140" value="100">
+            </div>
+        </div>
+    </div>
 
-    .piano,
-    .controls {
-        display: none;
-    }
-
-    #orientationAlert {
-        display: block;
-        text-align: center;
-        font-size: 4em;
-        color: #42E2D9;
-
-        .piano,
-        .controls {
-
-            display: none;
-        }
-    }
-}
-
-/* Show piano and controls, and hide orientation alert in landscape mode */
-@media screen and (orientation: landscape) {
-    #orientationAlert {
-        display: none;
-    }
-
-    .piano,
-    .controls {
-        display: block;
-    }
-}
-
-
-
-body {
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    background-color: black;
-    /* Cool Gray 3 */
-    color: #101D32;
-    /* Dark Stone */
-    font-family: Arial, sans-serif;
-}
-
-.controls {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    /* 6 columns */
-    grid-template-rows: auto auto auto;
-    /* 3 rows */
-    gap: 10px;
-    /* Space between grid items */
-    padding: 10px;
-    /* Padding around the grid */
-    text-align: center;
-    margin-bottom: 10px;
-    background-color: #8C52DB;
-    /* Primary Purple */
-    border-radius: 10px;
-    color: #FFFFFF;
-    /* White text for better contrast */
-    width: 80%;
-}
+    <div class="note-toggle">
+        <span class="radio-button">
+            <input type="radio" id="showNotes" name="noteToggle" value="show" checked>
+            <label for="showNotes">Show Note Names</label>
+        </span>
+        <span class="radio-button">
+            <input type="radio" id="hideNotes" name="noteToggle" value="hide">
+            <label for="hideNotes">No Note Names</label>
+        </span>
+    </div>
 
 
-.jam-card-controls {
-    display: grid;
-    grid-column: 1 / 3;
-    /* Span 2 columns */
-    grid-row: 1 / span 3;
-    /* Span all 3 rows */
-    text-align: center;
-    border: 1px solid #AFC9FF;
-    padding: 10px;
-    margin-top: 10px;
-    align-items: center;
-    gap: 10px;
-}
+    <div class="piano">
+        <!-- Key Containers -->
+        <div class="key-container">
+            <div class="white-key" id="1" onclick="playNote('1')"></div>
+            <span class="note-name-white">C</span>
+            <div class="black-key" id="2" onclick="playNote('2')"></div>
+            <span class="note-name-black">C# / Db</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="3" onclick="playNote('3')"></div>
+            <span class="note-name-white">D</span>
+            <div class="black-key" id="4" onclick="playNote('4')"></div>
+            <span class="note-name-black">D# / Eb</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="5" onclick="playNote('5')"></div>
+            <span class="note-name-white">E</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="6" onclick="playNote('6')"></div>
+            <span class="note-name-white">F</span>
+            <div class="black-key" id="7" onclick="playNote('7')"></div>
+            <span class="note-name-black">F# / Gb</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="8" onclick="playNote('8')"></div>
+            <span class="note-name-white">G</span>
+            <div class="black-key" id="9" onclick="playNote('9')"></div>
+            <span class="note-name-black">G# / Ab</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="10" onclick="playNote('10')"></div>
+            <span class="note-name-white">A</span>
+            <div class="black-key" id="11" onclick="playNote('11')"></div>
+            <span class="note-name-black">A# / Bb</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="12" onclick="playNote('12')"></div>
+            <span class="note-name-white">B</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="13" onclick="playNote('13')"></div>
+            <span class="note-name-white">C</span>
+            <div class="black-key" id="14" onclick="playNote('14')"></div>
+            <span class="note-name-black">C# / Db</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="15" onclick="playNote('15')"></div>
+            <span class="note-name-white">D</span>
+            <div class="black-key" id="16" onclick="playNote('16')"></div>
+            <span class="note-name-black">D# / Eb</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="17" onclick="playNote('17')"></div>
+            <span class="note-name-white">E</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="18" onclick="playNote('18')"></div>
+            <span class="note-name-white">F</span>
+            <div class="black-key" id="19" onclick="playNote('19')"></div>
+            <span class="note-name-black">F# / Gb</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="20" onclick="playNote('20')"></div>
+            <span class="note-name-white">G</span>
+            <div class="black-key" id="21" onclick="playNote('21')"></div>
+            <span class="note-name-black">G# / Ab</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="22" onclick="playNote('22')"></div>
+            <span class="note-name-white">A</span>
+            <div class="black-key" id="23" onclick="playNote('23')"></div>
+            <span class="note-name-black">A# / Bb</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="24" onclick="playNote('24')"></div>
+            <span class="note-name-white">B</span>
+        </div>
+        <div class="key-container">
+            <div class="white-key" id="25" onclick="playNote('25')"></div>
+            <span class="note-name-white">C</span>
+        </div>
+    </div>
 
-.title {
-    font-weight: bold;
-    text-align: left;
-    vertical-align: top;
-}
+    <script src="Keyboard15.js"></script>
+    <script>
+        // Ensure the DOM is fully loaded before attaching event listeners
+        document.addEventListener("DOMContentLoaded", function () {
+            const keys = document.querySelectorAll('.white-key, .black-key');
+            keys.forEach(function (key) {
+                key.addEventListener('click', function () {
+                    handleKeyPress(key.id); // key.id is the note number
+                });
+            });
+        });
+    </script>
 
-.jamTrack {
-    display: grid;
-    grid-column: 1 / span 2;
-    /* Span 2 columns */
-    grid-row: 2 / span 2;
-    /* Span all 3 rows */
-    text-align: center;
-}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Your existing code...
 
-.expression-controls {
-    display: grid;
-    grid-column: 4 / span 2;
-    /* Span 2 columns */
-    grid-row: 2 / span 2;
-    /* Span all 3 rows */
-    text-align: center;
-}
+            // Add event listeners to radio buttons
+            document.getElementById("showNotes").addEventListener("change", function () {
+                toggleNoteNames(true);
+            });
+            document.getElementById("hideNotes").addEventListener("change", function () {
+                toggleNoteNames(false);
+            });
 
-.note-display-controls {
-    grid-column: 3 / span 1;
-    /* Span 1 column */
-    grid-row: 1 / span 3;
-    /* Span all 3 rows */
-    text-align: center;
-    border: 1px solid #AFC9FF;
-    padding: 10px;
-    margin-top: 10px;
-    display: grid;
-    align-items: center;
-    gap: 10px;
-}
-
-.jam-along-controls {
-    grid-column: 4 / span 3;
-    /* Span 3 columns */
-    grid-row: 1 / span 3;
-    /* Span all 3 rows */
-    border: 1px solid #AFC9FF;
-    padding: 10px;
-    margin-top: 10px;
-    display: grid;
-    align-items: center;
-    gap: 10px;
-}
-
-
-#jamAlongSelect,
-#playAlongVolume {
-    margin: 0 5px;
-}
-
-#playStopButton {
-    margin-top: 10px;
-    padding: 10px 20px;
-    /* Increase padding for a larger button */
-    background-color: #DC387D;
-    /* Green background color */
-    color: white;
-    /* White text color */
-    border: none;
-    /* Remove border */
-    border-radius: 5px;
-    /* Add rounded corners */
-    font-size: 1.2em;
-    /* Increase font size */
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    /* Add a smooth hover effect */
-}
-
-#playStopButton:hover {
-    background-color: #FFA0C6;
-    /* Darker green on hover */
-}
-
-.note-toggle {
-    margin: 10px;
-    text-align: center;
-    color: #42E2D9;
-}
-
-.radio-button {
-    display: inline-block;
-    /* or 'inline' depending on your layout */
-    margin-right: 10px;
-    /* Space between radio button groups */
-}
-
-
-.piano {
-    display: flex;
-    align-items: start;
-    border: 3px solid #42E2D9;
-    /* Turquoise */
-    border-radius: 10px;
-    background-color: #727F95;
-    /* Cool Gray 1 */
-    padding: 10px;
-}
-
-.key-container {
-    position: relative;
-    display: inline-block;
-    width: 5vw;
-    /* Adjust as needed */
-}
-
-.white-key {
-    height: 40vh;
-    /* Adjust for desired height */
-    width: 100%;
-    background-color: #FFFFFF;
-    /* White keys */
-    border: 1px solid #727F95;
-    /* Cool Gray 1 for border */
-    box-shadow: 0 0.3vh #999;
-    cursor: pointer;
-}
-
-.black-key {
-    height: 24vh;
-    /* Adjust for desired height */
-    width: 60%;
-    background-color: #000000;
-    /* Black keys */
-    position: absolute;
-    top: 0;
-    left: 70%;
-    /* Adjust as needed */
-    z-index: 1;
-    border: 1px solid #727F95;
-    /* Cool Gray 1 for border */
-    box-shadow: 0 0.2vh #666;
-    cursor: pointer;
-}
-
-/* Example overrides for specific black keys */
-.black-key:nth-child(1) {
-    left: 70%;
-}
-
-/* For C3# */
-.black-key:nth-child(2) {
-    left: 90%;
-}
-
-/* For D3# */
-/* Add similar lines for each black key */
-
-.note-name-white {
-    position: absolute;
-    top: 90%;
-    /* Adjust as needed */
-    left: 50%;
-    /* Center horizontally */
-    transform: translateX(-50%);
-    /* Adjust horizontal centering */
-    color: black;
-    /* or white, depending on key color */
-    font-weight: bold;
-    pointer-events: none;
-    z-index: 1;
-    font-size: 1.2em;
-    /* Prevents the note name from interfering with key clicks */
-}
-
-.note-name-black {
-    position: absolute;
-    top: 40%;
-    /* Adjust as needed */
-    left: 100%;
-    /* Center horizontally */
-    transform: translateX(-50%);
-    /* Adjust horizontal centering */
-    color: rgb(255, 255, 255);
-    /* or white, depending on key color */
-    font-weight: bold;
-    pointer-events: none;
-    text-align: center;
-    z-index: 1;
-    /* Prevents the note name from interfering with key clicks */
-}
+            function toggleNoteNames(show) {
+                var noteNamesWhite = document.querySelectorAll('.note-name-white');
+                var noteNamesBlack = document.querySelectorAll('.note-name-black');
+                noteNamesWhite.forEach(function (el) {
+                    el.style.display = show ? 'block' : 'none';
+                });
+                noteNamesBlack.forEach(function (el) {
+                    el.style.display = show ? 'block' : 'none';
+                });
+            }
+        });
+    </script>
