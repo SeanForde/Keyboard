@@ -25,25 +25,20 @@ const chromaticScale = ["C", "C# / Db", "D", "D# / Eb", "E", "F", "F# / Gb", "G"
 
 let audioFiles = {};
 
-document.addEventListener("DOMContentLoaded", function () {
-    // Preloading audio files
-    Object.keys(noteMapping).forEach(noteId => {
-        const noteName = noteMapping[noteId];
-        audioFiles[noteName] = new Audio('keyboardNotes/' + noteName + '.mp3');
-    });
-
-    const keys = document.querySelectorAll('.white-key, .black-key');
-    keys.forEach(key => key.addEventListener('click', () => {
-        const noteName = noteMapping[key.id];
-        playNote(noteName);
-    }));
-});
+// Utility functions defined after global variables but before event-driven code for logical structuring
 
 function playNote(noteName) {
-    if (audioFiles[noteName]) {
-        audioFiles[noteName].play();
+    // Check if the note's audio is already loaded
+    if (!audioFiles[noteName]) {
+        // If not, load the audio for the first time
+        audioFiles[noteName] = new Audio('keyboardNotes/' + noteName + '.mp3');
     }
+    // Reset the audio's currentTime to ensure it plays from the start
+    audioFiles[noteName].currentTime = 0;
+    // Play the audio
+    audioFiles[noteName].play();
 }
+
 
 function handleKeyPress(noteNumber) {
     const noteName = noteMapping[noteNumber];
@@ -284,11 +279,6 @@ function colorDominant7thChords(rootNote, chromaticScale) {
     });
 }
 
-function playNote(note) {
-    const audio = new Audio('keyboardNotes/' + note + '.mp3');
-    audio.play();
-}
-
 // Play-Along Audio Control
 let jamAlongAudio = null;
 
@@ -303,7 +293,20 @@ function loadJamAlongTrack(trackName) {
     jamAlongAudio.volume = jamAlongVolume.value / 100;
 }
 
+// DOMContentLoaded event to initialize the application
+
 document.addEventListener("DOMContentLoaded", function () {
+    // Preloading audio files
+    Object.keys(noteMapping).forEach(noteId => {
+        const noteName = noteMapping[noteId];
+        audioFiles[noteName] = new Audio('keyboardNotes/' + noteName + '.mp3');
+    });
+
+    const keys = document.querySelectorAll('.white-key, .black-key');
+    keys.forEach(key => key.addEventListener('click', () => {
+        const noteName = noteMapping[key.id];
+        playNote(noteName);
+    }));
 
     // Play-Along Controls
     const jamAlongSelect = document.getElementById('jamAlongSelect');
@@ -352,10 +355,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-
-
-
-
+// Event listeners for UI interactions...
 
 document.addEventListener("DOMContentLoaded", function () {
     var keys = document.querySelectorAll('.white-key, .black-key');
@@ -363,12 +363,13 @@ document.addEventListener("DOMContentLoaded", function () {
     var jamCardSelect = document.getElementById('jamCardSelect');
     var jamCardLabel = document.querySelector('label[for="jamCardSelect"]');
     var jamCardContainer = document.querySelector('.jam-card-container');
+    const piano = document.querySelector('.piano'); // Get the parent element
 
-
-    keys.forEach(function (key) {
-        key.addEventListener('click', function () {
-            handleKeyPress(key.id);
-        });
+    piano.addEventListener('click', function (event) {
+        // Check if the clicked element is a key
+        if (event.target.classList.contains('white-key') || event.target.classList.contains('black-key')) {
+            handleKeyPress(event.target.id); // Pass the key ID to the handler
+        }
     });
 
     rootSelect.addEventListener('change', function () {
@@ -419,10 +420,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-
-
-
-
     jamCardSelect.addEventListener('change', function () {
         const rootNote = rootSelect.value;
         clearCardTones();
@@ -465,9 +462,6 @@ document.addEventListener("DOMContentLoaded", function () {
     jamCardLabel.style.display = 'none';
     jamCardContainer.style.display = 'none';
 });
-
-
-
 
 function checkOrientation() {
     const orientationAlert = document.getElementById('orientationAlert');
