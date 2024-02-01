@@ -14,6 +14,49 @@ header {
     /* Adjust color to fit your design */
 }
 
+.overlay {
+    position: fixed;
+    /* or 'absolute', depending on your layout needs */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent black */
+    z-index: 10;
+    /* Ensure it's above other content */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#startButton {
+    background: linear-gradient(135deg, #0072ff, #00c6ff);
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+    box-shadow: 0 4px 15px rgba(0, 118, 255, 0.4);
+}
+
+#startButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 118, 255, 0.5);
+}
+
+#startButton:active {
+    transform: translateY(1px);
+    box-shadow: 0 3px 10px rgba(0, 118, 255, 0.5);
+}
+
+
+
 h1 {
     margin: 0;
     padding: 10px;
@@ -113,10 +156,39 @@ body {
     text-align: center;
     border: 1px solid #AFC9FF;
     padding: 10px;
-    margin-top: 10px;
+    border-radius: 10px;
     align-items: center;
     gap: 10px;
 }
+
+/* Make sure the jamCardContainer is relatively positioned to its nearest positioned ancestor 
+   for better control over its placement. If it doesn't have a positioned ancestor,
+   you might want to wrap it in a div with position: relative; */
+#jamCardContainer {
+    position: relative;
+    /* Changed from absolute to relative */
+    margin-top: 20px;
+    /* Instead of top: 100px; use margin-top for spacing from previous content */
+    display: none;
+    /* Keep as initially hidden */
+    width: 100%;
+    /* Ensure it spans the width of its container */
+    text-align: center;
+    /* Center-align the contents, useful for the image */
+}
+
+#jamCardImage {
+    width: 50%;
+    /* Adjust the width to be more visible, e.g., 50% of its container */
+    max-width: 300px;
+    /* Set a max-width to prevent the image from being too large */
+    height: auto;
+    /* Maintain aspect ratio */
+    margin: 0 auto;
+    /* Center the image horizontally */
+}
+
+
 
 .title {
     font-weight: bold;
@@ -150,7 +222,7 @@ body {
     text-align: center;
     border: 1px solid #AFC9FF;
     padding: 10px;
-    margin-top: 10px;
+    border-radius: 10px;
     display: grid;
     align-items: center;
     gap: 10px;
@@ -163,7 +235,7 @@ body {
     /* Span all 3 rows */
     border: 1px solid #AFC9FF;
     padding: 10px;
-    margin-top: 10px;
+    border-radius: 10px;
     display: grid;
     align-items: center;
     gap: 10px;
@@ -199,19 +271,6 @@ body {
     /* Darker green on hover */
 }
 
-.note-toggle {
-    margin: 10px;
-    text-align: center;
-    color: #42E2D9;
-}
-
-.radio-button {
-    display: inline-block;
-    /* or 'inline' depending on your layout */
-    margin-right: 10px;
-    /* Space between radio button groups */
-}
-
 
 .piano {
     display: flex;
@@ -239,7 +298,10 @@ body {
     /* White keys */
     border: 1px solid #727F95;
     /* Cool Gray 1 for border */
-    box-shadow: 0 0.3vh #999;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 1.2);
+    /* Add a subtle shadow */
+    transition: box-shadow 0.1s ease;
+    /* Smooth transition for the shadow */
     cursor: pointer;
 }
 
@@ -256,7 +318,9 @@ body {
     z-index: 1;
     border: 1px solid #727F95;
     /* Cool Gray 1 for border */
-    box-shadow: 0 0.2vh #666;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+    /* Darker shadow for contrast */
+    transition: box-shadow 0.1s ease;
     cursor: pointer;
 }
 
@@ -270,8 +334,14 @@ body {
     left: 90%;
 }
 
-/* For D3# */
-/* Add similar lines for each black key */
+/* Style for pressed keys */
+.key-pressed {
+    transform: translateY(2px);
+    box-shadow: none;
+    /* Example to remove shadow to mimic pressing */
+}
+
+
 
 .note-name-white {
     position: absolute;
@@ -305,4 +375,71 @@ body {
     text-align: center;
     z-index: 1;
     /* Prevents the note name from interfering with key clicks */
+}
+
+.options {
+    display: flex;
+    justify-content: center;
+    /* Center children horizontally */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.options label {
+    display: flex;
+    align-items: center;
+    margin: 0 12px;
+    /* Adjust spacing between each label */
+    cursor: pointer;
+    color: white;
+    /* Text color */
+    font-size: 16px;
+}
+
+/* Custom checkbox styling remains the same */
+.checkmark {
+    height: 25px;
+    width: 25px;
+    background-color: #555;
+    border-radius: 5px;
+    margin-right: 10px;
+    /* Space between the checkmark and label text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.options input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+}
+
+.options input:checked+.checkmark {
+    background-color: #4CAF50;
+}
+
+.checkmark:after {
+    content: '';
+    display: none;
+}
+
+.options input:checked+.checkmark:after {
+    display: block;
+    width: 8px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+.options label:hover {
+    color: #4CAF50;
+}
+
+.options label,
+.checkmark {
+    transition: background-color 0.3s, color 0.3s;
 }
