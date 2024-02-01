@@ -16,6 +16,14 @@
             <h1>Music Will Interactive Keyboard</h1>
         </header>
     </div>
+    <!-- Overlay -->
+    <div id="overlay" class="overlay">
+        <button id="startButton">Let's Jam!</button>
+    </div>
+
+    <!-- Right after the start button, indicating loading of initial resources -->
+    <div id="loadingIndicator" style="display: none;">Loading sounds...</div>
+
     <div class="controls">
 
         <!-- Root Section -->
@@ -74,144 +82,111 @@
             </div>
             <div class="expression-controls">
                 <label for="jamAlongVolume">Volume:</label>
-                <input type="range" id="jamAlongVolume" min="0" max="100" value="50">
+                <input type="range" id="jamAlongVolume" min="0" max="1" step="0.01" value="0.8">
                 <br>
                 <label for="jamAlongTempo">Tempo:</label>
-                <input type="range" id="jamAlongTempo" min="60" max="140" value="100">
+                <input type="range" id="jamAlongTempo" min="60" max="200" value="100">
             </div>
         </div>
     </div>
-
-    <div class="note-toggle">
-        <span class="radio-button">
-            <input type="radio" id="showNotes" name="noteToggle" value="show" checked>
-            <label for="showNotes">Show Note Names</label>
-        </span>
-        <span class="radio-button">
-            <input type="radio" id="hideNotes" name="noteToggle" value="hide">
-            <label for="hideNotes">No Note Names</label>
-        </span>
+    <!-- Viewing Options Container-->
+    <div class="options">
+        <label for="showNoteNames" id="labelShowNoteNames"><input type="checkbox" id="showNoteNames" checked><span>Show
+                Note Names</span></label>
+        <label for="showJamCards" id="labelShowJamCards"><input type="checkbox" id="showJamCards" checked><span>Show Jam
+                Cards</span></label>
+        <label for="showControls" id="labelShowControls"><input type="checkbox" id="showControls" checked><span>Show
+                Controls</span></label>
     </div>
 
+    <!-- Jam Card Container-->
+    <div id="jamCardContainer" style="display: none;">
+        <img id="jamCardImage" src="" alt="Jam Card">
+    </div>
 
     <div class="piano">
         <!-- Key Containers -->
         <div class="key-container">
-            <div class="white-key" id="1" onclick="playNote('1')"></div>
+            <div class="white-key" id="1"></div>
             <span class="note-name-white">C</span>
-            <div class="black-key" id="2" onclick="playNote('2')"></div>
+            <div class="black-key" id="2"></div>
             <span class="note-name-black">C# / Db</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="3" onclick="playNote('3')"></div>
+            <div class="white-key" id="3"></div>
             <span class="note-name-white">D</span>
-            <div class="black-key" id="4" onclick="playNote('4')"></div>
+            <div class="black-key" id="4"></div>
             <span class="note-name-black">D# / Eb</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="5" onclick="playNote('5')"></div>
+            <div class="white-key" id="5"></div>
             <span class="note-name-white">E</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="6" onclick="playNote('6')"></div>
+            <div class="white-key" id="6"></div>
             <span class="note-name-white">F</span>
-            <div class="black-key" id="7" onclick="playNote('7')"></div>
+            <div class="black-key" id="7"></div>
             <span class="note-name-black">F# / Gb</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="8" onclick="playNote('8')"></div>
+            <div class="white-key" id="8"></div>
             <span class="note-name-white">G</span>
-            <div class="black-key" id="9" onclick="playNote('9')"></div>
+            <div class="black-key" id="9"></div>
             <span class="note-name-black">G# / Ab</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="10" onclick="playNote('10')"></div>
+            <div class="white-key" id="10"></div>
             <span class="note-name-white">A</span>
-            <div class="black-key" id="11" onclick="playNote('11')"></div>
+            <div class="black-key" id="11"></div>
             <span class="note-name-black">A# / Bb</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="12" onclick="playNote('12')"></div>
+            <div class="white-key" id="12"></div>
             <span class="note-name-white">B</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="13" onclick="playNote('13')"></div>
+            <div class="white-key" id="13"></div>
             <span class="note-name-white">C</span>
-            <div class="black-key" id="14" onclick="playNote('14')"></div>
+            <div class="black-key" id="14"></div>
             <span class="note-name-black">C# / Db</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="15" onclick="playNote('15')"></div>
+            <div class="white-key" id="15"></div>
             <span class="note-name-white">D</span>
-            <div class="black-key" id="16" onclick="playNote('16')"></div>
+            <div class="black-key" id="16"></div>
             <span class="note-name-black">D# / Eb</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="17" onclick="playNote('17')"></div>
+            <div class="white-key" id="17"></div>
             <span class="note-name-white">E</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="18" onclick="playNote('18')"></div>
+            <div class="white-key" id="18"></div>
             <span class="note-name-white">F</span>
-            <div class="black-key" id="19" onclick="playNote('19')"></div>
+            <div class="black-key" id="19"></div>
             <span class="note-name-black">F# / Gb</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="20" onclick="playNote('20')"></div>
+            <div class="white-key" id="20"></div>
             <span class="note-name-white">G</span>
-            <div class="black-key" id="21" onclick="playNote('21')"></div>
+            <div class="black-key" id="21"></div>
             <span class="note-name-black">G# / Ab</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="22" onclick="playNote('22')"></div>
+            <div class="white-key" id="22"></div>
             <span class="note-name-white">A</span>
-            <div class="black-key" id="23" onclick="playNote('23')"></div>
+            <div class="black-key" id="23"></div>
             <span class="note-name-black">A# / Bb</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="24" onclick="playNote('24')"></div>
+            <div class="white-key" id="24"></div>
             <span class="note-name-white">B</span>
         </div>
         <div class="key-container">
-            <div class="white-key" id="25" onclick="playNote('25')"></div>
+            <div class="white-key" id="25"></div>
             <span class="note-name-white">C</span>
         </div>
     </div>
 
     <script src="Keyboard15.js"></script>
-    <script>
-        // Ensure the DOM is fully loaded before attaching event listeners
-        document.addEventListener("DOMContentLoaded", function () {
-            const keys = document.querySelectorAll('.white-key, .black-key');
-            keys.forEach(function (key) {
-                key.addEventListener('click', function () {
-                    handleKeyPress(key.id); // key.id is the note number
-                });
-            });
-        });
-    </script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Your existing code...
-
-            // Add event listeners to radio buttons
-            document.getElementById("showNotes").addEventListener("change", function () {
-                toggleNoteNames(true);
-            });
-            document.getElementById("hideNotes").addEventListener("change", function () {
-                toggleNoteNames(false);
-            });
-
-            function toggleNoteNames(show) {
-                var noteNamesWhite = document.querySelectorAll('.note-name-white');
-                var noteNamesBlack = document.querySelectorAll('.note-name-black');
-                noteNamesWhite.forEach(function (el) {
-                    el.style.display = show ? 'block' : 'none';
-                });
-                noteNamesBlack.forEach(function (el) {
-                    el.style.display = show ? 'block' : 'none';
-                });
-            }
-        });
-    </script>
+</body>
