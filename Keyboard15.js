@@ -27,32 +27,36 @@ let audioFiles = {};
 
 let jamAlongAudio = null;
 
-let audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 
 // Utility functions defined after global variables but before event-driven code for logical structuring
 
 // Function to play a note and visually press a key
+// Revised function to play a note and visually press a key
 function playNote(noteName, keyId) {
-    // Check if the note's audio is already loaded
-    if (!audioFiles[noteName]) {
-        // If not, load the audio for the first time
-        audioFiles[noteName] = new Audio('keyboardNotes/' + keyId + '.mp3');
-    }
-    // Reset the audio's currentTime to ensure it plays from the start
-    audioFiles[noteName].currentTime = 0;
-    // Set the volume to max
-    audioFiles[noteName].volume = 1.0;
-    // Play the audio
-    audioFiles[noteName].play();
+    // Identifier for the audio element corresponding to the note
+    const audioId = `audio_${noteName}`;
 
-    // Visual feedback
-    var keyElement = document.getElementById(keyId);
+    let audioElement = document.getElementById(audioId);
+    if (!audioElement) {
+        // If the audio element doesn't exist, create it and append to the body
+        audioElement = document.createElement('audio');
+        audioElement.id = audioId;
+        audioElement.src = `keyboardNotes/${keyId}.mp3`;
+        document.body.appendChild(audioElement);
+    }
+
+    audioElement.currentTime = 0; // Rewind to the start
+    audioElement.play();
+
+    // Visual feedback for key press
+    const keyElement = document.getElementById(keyId);
     keyElement.classList.add('key-pressed');
-    setTimeout(function () {
+    setTimeout(() => {
         keyElement.classList.remove('key-pressed');
-    }, 200); // Adjust timing as needed
+    }, 200);
 }
+
 
 
 function handleKeyPress(noteNumber) {
@@ -322,6 +326,12 @@ function loadJamAlongTrack(trackName) {
     updateJamAlongAudioSettings(); // Apply volume and tempo settings from sliders
 }
 
+
+// Adjust volume and tempo with sliders
+document.getElementById('jamAlongVolume').addEventListener('input', updateJamAlongAudioSettings);
+document.getElementById('jamAlongTempo').addEventListener('input', updateJamAlongAudioSettings);
+
+
 // Update volume and tempo immediately after a new track is loaded
 function updateJamAlongAudioSettings() {
     if (jamAlongAudio) {
@@ -337,10 +347,6 @@ function updateJamAlongAudioSettings() {
 
 
 
-
-// Adjust volume and tempo with sliders
-document.getElementById('jamAlongVolume').addEventListener('input', updateJamAlongAudioSettings);
-document.getElementById('jamAlongTempo').addEventListener('input', updateJamAlongAudioSettings);
 
 
 
@@ -401,7 +407,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById('jamAlongVolume').addEventListener('input', function () {
         if (jamAlongAudio) {
-            jamAlongAudio.volume = this.value / 100; // Assuming the slider value is between 0 and 100
+            jamAlongAudio.volume = this.value; // Assuming the slider value is between 0 and 100
         }
     });
 
@@ -551,21 +557,33 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 document.getElementById('startButton').addEventListener('click', function () {
-    // Check if the audio context is already created
-    if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        console.log('AudioContext created successfully');
-    } else if (audioContext.state === 'suspended') {
-        audioContext.resume().then(() => {
-            console.log('AudioContext resumed successfully');
-        });
-    }
+    // Preload audio files for each piano key
+    Object.keys(noteMapping).forEach(noteId => {
+        const noteName = noteMapping[noteId];
+        const audioId = `audio_${noteName}`;
+        let audioElement = document.getElementById(audioId);
+        if (!audioElement) {
+            // If the audio element doesn't exist, create it
+            audioElement = document.createElement('audio');
+            audioElement.id = audioId;
+            audioElement.src = `keyboardNotes/${noteId}.mp3`; // Adjust path as needed
+            document.body.appendChild(audioElement);
+        }
+    });
 
-    // Perform other actions for start button, e.g., hide overlay
+    // Hide the overlay and show the piano interface (if applicable)
     document.getElementById('overlay').style.display = 'none';
 
-    // Add here any other code that needs to run when the start button is clicked
+    // Other UI initialization code can go here
+
+    // Optionally resume the audio context if using Web Audio API elsewhere
+    if (audioContext && audioContext.state === 'suspended') {
+        audioContext.resume().then(() => {
+            console.log('AudioContext resumed successfully.');
+        });
+    }
 });
+
 
 
 function checkOrientation() {
