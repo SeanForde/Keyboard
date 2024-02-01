@@ -25,18 +25,33 @@ const chromaticScale = ["C", "C# / Db", "D", "D# / Eb", "E", "F", "F# / Gb", "G"
 
 let audioFiles = {};
 
+let jamAlongAudio = null;
+
+let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+
 // Utility functions defined after global variables but before event-driven code for logical structuring
 
-function playNote(noteName) {
+// Function to play a note and visually press a key
+function playNote(noteName, keyId) {
     // Check if the note's audio is already loaded
     if (!audioFiles[noteName]) {
         // If not, load the audio for the first time
-        audioFiles[noteName] = new Audio('keyboardNotes/' + noteName + '.mp3');
+        audioFiles[noteName] = new Audio('keyboardNotes/' + keyId + '.mp3');
     }
     // Reset the audio's currentTime to ensure it plays from the start
     audioFiles[noteName].currentTime = 0;
+    // Set the volume to max
+    audioFiles[noteName].volume = 1.0;
     // Play the audio
     audioFiles[noteName].play();
+
+    // Visual feedback
+    var keyElement = document.getElementById(keyId);
+    keyElement.classList.add('key-pressed');
+    setTimeout(function () {
+        keyElement.classList.remove('key-pressed');
+    }, 200); // Adjust timing as needed
 }
 
 
@@ -199,8 +214,6 @@ function colorHarmonicMinorScale(rootNote, chromaticScale) {
     });
 }
 
-
-
 function colorBluesScale(rootNote, chromaticScale) {
     const cardTones = [3, 5, 6, 7, 10]; // Intervals for Blues scale
 
@@ -279,83 +292,76 @@ function colorDominant7thChords(rootNote, chromaticScale) {
     });
 }
 
-// Play-Along Audio Control
-let jamAlongAudio = null;
+
+
+
+
+// Play-Along Controls
+const jamAlongSelect = document.getElementById('jamAlongSelect');
+const playStopButton = document.getElementById('playStopButton');
+
+jamAlongSelect.addEventListener('change', function () {
+    // Ensure to stop and reset the current track if one is playing
+    if (jamAlongAudio) {
+        jamAlongAudio.pause();
+        jamAlongAudio.currentTime = 0;
+    }
+    loadJamAlongTrack(this.value);
+});
 
 function loadJamAlongTrack(trackName) {
     if (jamAlongAudio) {
         jamAlongAudio.pause();
-        jamAlongAudio = null;
     }
-    jamAlongAudio = new Audio('jamAlongs/' + trackName + '.mp3');
+    jamAlongAudio = new Audio(`jamAlongs/${trackName}.mp3`);
     jamAlongAudio.loop = true;
-    const jamAlongVolume = document.getElementById('jamAlongVolume');
-    jamAlongAudio.volume = jamAlongVolume.value / 100;
+
+    // Explicitly set the volume to 1.0 for maximum volume
+    jamAlongAudio.volume = 1.0;
+
+    updateJamAlongAudioSettings(); // Apply volume and tempo settings from sliders
 }
 
-// DOMContentLoaded event to initialize the application
+// Update volume and tempo immediately after a new track is loaded
+function updateJamAlongAudioSettings() {
+    if (jamAlongAudio) {
+        const volume = document.getElementById('jamAlongVolume').value;
+        const tempo = document.getElementById('jamAlongTempo').value / 100;
 
-document.addEventListener("DOMContentLoaded", function () {
-    // Preloading audio files
-    Object.keys(noteMapping).forEach(noteId => {
-        const noteName = noteMapping[noteId];
-        audioFiles[noteName] = new Audio('keyboardNotes/' + noteName + '.mp3');
-    });
+        jamAlongAudio.volume = volume;
+        jamAlongAudio.playbackRate = tempo;
+    }
+}
 
-    const keys = document.querySelectorAll('.white-key, .black-key');
-    keys.forEach(key => key.addEventListener('click', () => {
-        const noteName = noteMapping[key.id];
-        playNote(noteName);
-    }));
 
-    // Play-Along Controls
-    const jamAlongSelect = document.getElementById('jamAlongSelect');
-    const playStopButton = document.getElementById('playStopButton');
-    const jamAlongVolume = document.getElementById('jamAlongVolume');
 
-    jamAlongSelect.addEventListener('change', function () {
-        if (jamAlongAudio) {
-            jamAlongAudio.pause();
-            jamAlongAudio.currentTime = 0;
-            playStopButton.textContent = 'Play';
-        }
-        loadJamAlongTrack(this.value);
-    });
 
-    playStopButton.addEventListener('click', function () {
-        if (jamAlongAudio && !jamAlongAudio.paused) {
-            jamAlongAudio.pause();
-            this.textContent = 'Play';
-        } else {
-            loadJamAlongTrack(jamAlongSelect.value);
-            jamAlongAudio.play();
-            this.textContent = 'Stop';
-        }
-    });
 
-    jamAlongVolume.addEventListener('input', function () {
-        if (jamAlongAudio) {
-            jamAlongAudio.volume = this.value / 100;
-        }
-    });
 
-    // Load the initial track
-    loadJamAlongTrack(jamAlongSelect.value);
+// Adjust volume and tempo with sliders
+document.getElementById('jamAlongVolume').addEventListener('input', updateJamAlongAudioSettings);
+document.getElementById('jamAlongTempo').addEventListener('input', updateJamAlongAudioSettings);
+
+
+
+playStopButton.addEventListener('click', function () {
+    if (jamAlongAudio && !jamAlongAudio.paused) {
+        jamAlongAudio.pause();
+        this.textContent = 'Play';
+    } else if (jamAlongAudio) {
+        jamAlongAudio.play();
+        this.textContent = 'Stop';
+    } else {
+        // Load and play the first track by default if no track was previously selected
+        const selectedTrack = jamAlongSelect.value || 'Beat 1'; // Default to 'Beat 1' or current selection
+        loadJamAlongTrack(selectedTrack);
+        jamAlongAudio.play();
+        this.textContent = 'Stop';
+    }
 });
 
-document.addEventListener("DOMContentLoaded", function () {
 
-    const jamAlongTempo = document.getElementById('jamAlongTempo');
-
-    jamAlongTempo.addEventListener('input', function () {
-        if (jamAlongAudio) {
-            jamAlongAudio.playbackRate = this.value / 100;
-        }
-    });
-
-});
-
-// Event listeners for UI interactions...
+// DOMContentLoaded Event listeners
 
 document.addEventListener("DOMContentLoaded", function () {
     var keys = document.querySelectorAll('.white-key, .black-key');
@@ -363,12 +369,50 @@ document.addEventListener("DOMContentLoaded", function () {
     var jamCardSelect = document.getElementById('jamCardSelect');
     var jamCardLabel = document.querySelector('label[for="jamCardSelect"]');
     var jamCardContainer = document.querySelector('.jam-card-container');
+    const showNoteNamesCheckbox = document.getElementById('showNoteNames');
+    const showJamCardsCheckbox = document.getElementById('showJamCards');
+    const showControlsCheckbox = document.getElementById('showControls');
+    const jamAlongTempo = document.getElementById('jamAlongTempo');
+    const noteNames = document.querySelectorAll('.note-name-white, .note-name-black');
+    const controls = document.querySelector('.controls');
     const piano = document.querySelector('.piano'); // Get the parent element
+    var keys = document.querySelectorAll('.white-key, .black-key');
+
+    keys.forEach(function (key) {
+        key.addEventListener('click', function () {
+            playNote(noteMapping[key.id], key.id);
+        });
+    });
+
+    keys.forEach(function (key) {
+        key.addEventListener('click', function () {
+            var noteId = key.getAttribute('id');
+            var noteName = noteMapping[noteId];
+            playNote(noteName, noteId);
+        });
+    });
 
     piano.addEventListener('click', function (event) {
         // Check if the clicked element is a key
         if (event.target.classList.contains('white-key') || event.target.classList.contains('black-key')) {
             handleKeyPress(event.target.id); // Pass the key ID to the handler
+        }
+    });
+
+    document.getElementById('jamAlongVolume').addEventListener('input', function () {
+        if (jamAlongAudio) {
+            jamAlongAudio.volume = this.value / 100; // Assuming the slider value is between 0 and 100
+        }
+    });
+
+    document.getElementById('jamAlongTempo').addEventListener('input', function () {
+        if (jamAlongAudio) {
+            // Convert the tempo slider value to a playback rate.
+            // This example assumes the slider value ranges from 60 (slow) to 140 (fast),
+            // with 100 being the normal speed. You'll need to adjust the calculation
+            // based on your slider's range and desired effect.
+            playbackRate = this.value / 100; // Simple example, adjust as needed
+            jamAlongAudio.playbackRate = playbackRate;
         }
     });
 
@@ -418,6 +462,7 @@ document.addEventListener("DOMContentLoaded", function () {
             jamCardSelect.value = 'none';
             clearCardTones();
         }
+
     });
 
     jamCardSelect.addEventListener('change', function () {
@@ -455,13 +500,73 @@ document.addEventListener("DOMContentLoaded", function () {
                     break;
             }
         }
+
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Preloading audio files
+        Object.keys(noteMapping).forEach(noteId => {
+            const noteName = noteMapping[noteId];
+            if (!audioFiles[noteName]) { // Check to avoid reloading if already loaded
+                audioFiles[noteName] = new Audio(`keyboardNotes/${noteId}.mp3`);
+            }
+        });
+
+        // Additional initialization code can go here
+    });
+
+
+    // Toggle display of note names and update label text
+    showNoteNamesCheckbox.addEventListener('change', function () {
+        document.querySelectorAll('.note-name-white, .note-name-black').forEach(noteName => {
+            noteName.style.display = this.checked ? '' : 'none';
+        });
+        document.querySelector('#labelShowNoteNames span').textContent = this.checked ? 'Hide Note Names' : 'Show Note Names';
+    });
+
+    // Toggle display of jam cards and update label text
+    showJamCardsCheckbox.addEventListener('change', function () {
+        document.getElementById('jamCardContainer').style.display = this.checked ? '' : 'none';
+        document.querySelector('#labelShowJamCards span').textContent = this.checked ? 'Hide Jam Cards' : 'Show Jam Cards';
+    });
+
+    // Toggle display of controls and update label text
+    showControlsCheckbox.addEventListener('change', function () {
+        document.querySelector('.controls').style.display = this.checked ? '' : 'none';
+        document.querySelector('#labelShowControls span').textContent = this.checked ? 'Hide Controls' : 'Show Controls';
+    });
+
+
+
+    // Initial state setup based on checkbox default values
+    // Note: This step may be optional based on your initial CSS. It ensures the JavaScript respects the initial checkbox states.
+    showNoteNamesCheckbox.dispatchEvent(new Event('change'));
+    showJamCardsCheckbox.dispatchEvent(new Event('change'));
+    showControlsCheckbox.dispatchEvent(new Event('change'));
 
     // Initially hide the jamCardSelect and label
     jamCardSelect.style.display = 'none';
     jamCardLabel.style.display = 'none';
     jamCardContainer.style.display = 'none';
 });
+
+document.getElementById('startButton').addEventListener('click', function () {
+    // Check if the audio context is already created
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log('AudioContext created successfully');
+    } else if (audioContext.state === 'suspended') {
+        audioContext.resume().then(() => {
+            console.log('AudioContext resumed successfully');
+        });
+    }
+
+    // Perform other actions for start button, e.g., hide overlay
+    document.getElementById('overlay').style.display = 'none';
+
+    // Add here any other code that needs to run when the start button is clicked
+});
+
 
 function checkOrientation() {
     const orientationAlert = document.getElementById('orientationAlert');
