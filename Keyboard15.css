@@ -170,6 +170,15 @@ body {
     gap: 10px;
 }
 
+.jamCardContainer {
+    border: 0px solid #42E2D9;
+    border-radius: 0px;
+    position: relative;
+    /* Ensure it's positioned */
+    overflow: visible;
+    /* Allow contents to extend visually */
+    /* Define a width if not already set, or ensure it's controlled by parent elements */
+}
 
 #jamCardImage {
     position: relative;
