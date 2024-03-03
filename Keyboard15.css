@@ -81,13 +81,22 @@ h1 {
 @media screen and (orientation: portrait) {
 
     .piano,
-    .controls {
-        display: none;
+    .controls,
+    .jamCardContainer {
+        border: 0px solid #42E2D9;
+        border-radius: 0px;
+        position: relative;
+        /* Ensure it's positioned */
+        overflow: visible;
+        /* Allow contents to extend visually */
+        /* Define a width if not already set, or ensure it's controlled by parent elements */
     }
 
+
     #orientationAlert {
-        display: block;
+        display: flex;
         text-align: center;
+        justify-content: center;
         font-size: 4em;
         color: #42E2D9;
 
@@ -161,32 +170,19 @@ body {
     gap: 10px;
 }
 
-/* Make sure the jamCardContainer is relatively positioned to its nearest positioned ancestor 
-   for better control over its placement. If it doesn't have a positioned ancestor,
-   you might want to wrap it in a div with position: relative; */
-#jamCardContainer {
-    position: relative;
-    /* Changed from absolute to relative */
-    margin-top: 20px;
-    /* Instead of top: 100px; use margin-top for spacing from previous content */
-    display: none;
-    /* Keep as initially hidden */
-    width: 100%;
-    /* Ensure it spans the width of its container */
-    text-align: center;
-    /* Center-align the contents, useful for the image */
-}
 
 #jamCardImage {
-    width: 50%;
-    /* Adjust the width to be more visible, e.g., 50% of its container */
-    max-width: 300px;
-    /* Set a max-width to prevent the image from being too large */
-    height: auto;
-    /* Maintain aspect ratio */
-    margin: 0 auto;
-    /* Center the image horizontally */
+    position: relative;
+    left: 0;
+    /* Initial position; will be updated during dragging */
+    top: 0;
+    /* Adjust based on your layout */
+    width: 70%;
+    /* Your existing style */
+    z-index: 11;
+
 }
+
 
 
 
@@ -274,13 +270,19 @@ body {
 
 .piano {
     display: flex;
-    align-items: start;
+    flex-direction: column;
+    /* This ensures that the labels and keys are stacked vertically */
+    align-items: center;
     border: 3px solid #42E2D9;
-    /* Turquoise */
     border-radius: 10px;
     background-color: #727F95;
-    /* Cool Gray 1 */
-    padding: 10px;
+    padding: 0px;
+    position: relative;
+    /* This ensures the piano is the reference point for its children */
+    width: fit-content;
+    /* Adjusts the width to fit its content, which is the set of keys */
+    overflow: hidden;
+    /* Prevent overflow from causing extra space */
 }
 
 .key-container {
@@ -442,4 +444,54 @@ body {
 .options label,
 .checkmark {
     transition: background-color 0.3s, color 0.3s;
+}
+
+
+
+
+
+
+
+.keyboard-labels {
+    display: grid;
+    grid-template-columns: repeat(29, 1fr);
+    /* Adjust the number 25 to match the number of keys/labels */
+    gap: 2px;
+    /* Space between labels, adjust as needed */
+    width: 98%;
+    position: relative;
+    /* This ensures the piano is the reference point for its children */
+    /* This ensures the labels stretch to match the piano's width */
+    justify-items: center;
+    /* Centers the labels in their grid cells */
+    margin-left: 1%;
+    margin-bottom: 5px;
+    /* Adds some space between the labels and the keys */
+}
+
+.key-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    /* Adjust the font size as needed */
+    font-weight: bold;
+    text-align: center;
+    /* Ensures text is centered within each label */
+    padding: 5px .5vh;
+    /* Adjust padding as needed for visual appeal */
+    background-color: #eee;
+    /* Label background color */
+    border-radius: 4px;
+    /* Rounds the corners of the labels */
+    border: 1% solid #ccc;
+    /* Adds a subtle border to resemble the edges of a key */
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+    /* Adds a subtle shadow to give the keys a 3D effect */
+    width: 1.5vh;
+    height: 1.5vh;
+}
+
+.hidden {
+    visibility: hidden;
 }
