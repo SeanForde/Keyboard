@@ -13,7 +13,7 @@
     </div>
     <div id="title">
         <header>
-            <h1>Music Will Interactive Keyboard</h1>
+            <h1 id="h1">Music Will Interactive Keyboard</h1>
         </header>
     </div>
     <!-- Overlay -->
@@ -93,18 +93,91 @@
     <div class="options">
         <label for="showNoteNames" id="labelShowNoteNames"><input type="checkbox" id="showNoteNames" checked><span>Show
                 Note Names</span></label>
-        <label for="showJamCards" id="labelShowJamCards"><input type="checkbox" id="showJamCards" checked><span>Show Jam
+        <label for="showJamCards" id="labelShowJamCards"><input type="checkbox" id="showJamCards" checked><span>Hide Jam
                 Cards</span></label>
+        <label for="showKeyLabels" id="labelShowKeyLabels"><input type="checkbox" id="showKeyLabels"><span>Hide
+                Computer Keys
+            </span></label>
         <label for="showControls" id="labelShowControls"><input type="checkbox" id="showControls" checked><span>Show
                 Controls</span></label>
+
     </div>
 
     <!-- Jam Card Container-->
-    <div id="jamCardContainer" style="display: none;">
-        <img id="jamCardImage" src="" alt="Jam Card">
-    </div>
+
+
 
     <div class="piano">
+        <div class="jamCardContainer" id="jamCardContainer" style="display: none;">
+            <img id="jamCardImage" src="" alt="Jam Card">
+        </div>
+
+        <!-- Keyboard Key Labels Above Piano Keys -->
+
+        <div class="keyboard-labels lower-octave">
+            <div class="key-label hidden">Z</div>
+            <div class="key-label hidden">S</div>
+            <div class="key-label hidden">X</div>
+            <div class="key-label hidden">D</div>
+            <div class="key-label hidden">C</div>
+            <div class="key-label hidden"></div>
+            <div class="key-label hidden">V</div>
+            <div class="key-label hidden">G</div>
+            <div class="key-label hidden">B</div>
+            <div class="key-label hidden">H</div>
+            <div class="key-label hidden">N</div>
+            <div class="key-label hidden">J</div>
+            <div class="key-label hidden">M</div>
+            <div class="key-label hidden"></div>
+            <div class="key-label">W</div>
+            <!-- Mapping continues for all keys up to C5 -->
+            <div class="key-label">3</div>
+            <div class="key-label">E</div>
+            <div class="key-label">4</div>
+            <div class="key-label">R</div>
+            <div class="key-label hidden"></div>
+            <div class="key-label">T</div>
+            <div class="key-label">6</div>
+            <div class="key-label">Y</div>
+            <div class="key-label">7</div>
+            <div class="key-label">U</div>
+            <div class="key-label">8</div>
+            <div class="key-label">I</div>
+            <div class="key-label hidden"></div>
+            <div class="key-label">O</div>
+        </div>
+        <div class="keyboard-labels">
+            <div class="key-label">Z</div>
+            <div class="key-label">S</div>
+            <div class="key-label">X</div>
+            <div class="key-label">D</div>
+            <div class="key-label">C</div>
+            <div class="key-label hidden"></div>
+            <div class="key-label">V</div>
+            <div class="key-label">G</div>
+            <div class="key-label">B</div>
+            <div class="key-label">H</div>
+            <div class="key-label">N</div>
+            <div class="key-label">J</div>
+            <div class="key-label">M</div>
+            <div class="key-label hidden"></div>
+            <div class="key-label"> , </div>
+            <!-- Mapping continues for all keys up to C5 -->
+            <div class="key-label hidden">3</div>
+            <div class="key-label hidden">E</div>
+            <div class="key-label hidden">4</div>
+            <div class="key-label hidden">R</div>
+            <div class="key-label hidden"></div>
+            <div class="key-label hidden">T</div>
+            <div class="key-label hidden">6</div>
+            <div class="key-label hidden">Y</div>
+            <div class="key-label hidden">7</div>
+            <div class="key-label hidden">U</div>
+            <div class="key-label hidden">8</div>
+            <div class="key-label hidden">I</div>
+            <div class="key-label hidden"></div>
+            <div class="key-label hidden">O</div>
+        </div>
         <!-- Key Containers -->
         <div class="key-container">
             <div class="white-key" id="1"></div>
@@ -186,7 +259,16 @@
             <div class="white-key" id="25"></div>
             <span class="note-name-white">C</span>
         </div>
+
     </div>
 
+
+
+
+
+
+
+
     <script src="Keyboard15.js"></script>
+
 </body>
