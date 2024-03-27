@@ -13,7 +13,7 @@
     </div>
     <div id="title">
         <header>
-            <h1 id="h1">Music Will Interactive Keyboard</h1>
+            <h1 id="h1"></h1>
         </header>
     </div>
     <!-- Overlay -->
@@ -24,250 +24,267 @@
     <!-- Right after the start button, indicating loading of initial resources -->
     <div id="loadingIndicator" style="display: none;">Loading sounds...</div>
 
-    <div class="controls">
 
-        <!-- Root Section -->
-
-        <div class="jam-card-controls">
-            <div class="title">Jam Cards</div>
-            <label class="roots" for="rootSelect">Root:</label>
-            <select id="rootSelect" class="roots">
-                <option value="none" selected>None</option>
-                <option value="C">C</option>
-                <option value="C# / Db">C# / Db</option>
-                <option value="D">D</option>
-                <option value="D# / Eb">D# / Eb</option>
-                <option value="E">E</option>
-                <option value="F">F</option>
-                <option value="F# / Gb">F# / Gb</option>
-                <option value="G">G</option>
-                <option value="G# / Ab">G# / Ab</option>
-                <option value="A">A</option>
-                <option value="A# / Bb">A# / Bb</option>
-                <option value="B">B</option>
-            </select>
-            <label class="jam-cards" for="jamCardSelect">Jam Card:</label>
-            <select id="jamCardSelect" class="jam-cards">
-                <option value="none" selected>None</option>
-                <option value="majorPentatonic">Scale: Major Pentatonic</option>
-                <option value="minorPentatonic">Scale: Minor Pentatonic</option>
-                <option value="major">Scale: Major</option>
-                <option value="harmonicMinor">Scale: Harmonic Minor</option>
-                <option value="blues">Scale: Blues</option>
-                <option value="chordsMajor">Chords: Major</option>
-                <option value="chordsMinor">Chords: Minor</option>
-                <option value="chordsDominant7th">Chords: Dominant 7th</option>
-            </select>
-        </div>
-
-        <!-- Note Display Section -->
-        <div class="note-display-controls">
-            <div class="title">Note</div>
-            <br>
-            <span id="noteName">None</span>
-        </div>
-
-        <!-- Jam Alongs Section -->
-        <div class="jam-along-controls">
-            <div class="title">Jam Alongs</div>
-            <div class="jamTrack">
-                <select id="jamAlongSelect">
-                    <option value="Beat 1">Beat 1</option>
-                    <option value="Beat 2">Beat 2</option>
-                    <option value="Beat 3">Beat 3</option>
-                    <option value="Beat 4">Beat 4</option>
+    <div id="mainContainer" class="main-container">
+        <div class="side-panel">
+            <!-- Buttons, dropdowns, and other controls here -->
+            <div class="jam-card-controls">
+                <div class="title">Jam Cards</div>
+                <label class="roots" for="rootSelect">Root:</label>
+                <select id="rootSelect" class="roots">
+                    <option value="none" selected>None</option>
+                    <option value="C">C</option>
+                    <option value="C# / Db">C# / Db</option>
+                    <option value="D">D</option>
+                    <option value="D# / Eb">D# / Eb</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="F# / Gb">F# / Gb</option>
+                    <option value="G">G</option>
+                    <option value="G# / Ab">G# / Ab</option>
+                    <option value="A">A</option>
+                    <option value="A# / Bb">A# / Bb</option>
+                    <option value="B">B</option>
                 </select>
+                <label class="jam-cards" for="jamCardSelect">Jam Card:</label>
+                <select id="jamCardSelect" class="jam-cards">
+                    <option value="none" selected>None</option>
+                    <option value="majorPentatonic">Scale: Major Pentatonic</option>
+                    <option value="minorPentatonic">Scale: Minor Pentatonic</option>
+                    <option value="major">Scale: Major</option>
+                    <option value="harmonicMinor">Scale: Harmonic Minor</option>
+                    <option value="blues">Scale: Blues</option>
+                    <option value="chordsMajor">Chords: Major</option>
+                    <option value="chordsMinor">Chords: Minor</option>
+                    <option value="chordsDominant7th">Chords: Dominant 7th</option>
+                    <option value="progression145">Progression: 1-4-5</option>
+                    <option value="progression1456">Progression: 1-4-5-6</option>
+                </select>
+                <div id="jamCardMessage" class="jam-card-message"></div>
 
-                <button id="playStopButton">Play</button>
+                <div class="progression-boxes">
+                    <button class="progression-box" id="box1">Progression 1</button>
+                    <button class="progression-box" id="box2">Progression 2</button>
+                    <button class="progression-box" id="box3">Progression 3</button>
+                    <button class="progression-box" id="box4">Progression 4</button>
+                </div>
+
+
+                <label class="toggle-label" for="showNoteNames" id="labelShowNoteNames">
+                    <input type="checkbox" id="showNoteNames" checked>
+                    <span>Note Names</span></label>
+                <label class="toggle-label" for="showJamCards" id="labelShowJamCards">
+                    <input type="checkbox" id="showJamCards" checked>
+                    <span>Jam Cards</span></label>
+                <label class="toggle-label" for="showKeyLabels" id="labelShowKeyLabels">
+                    <input type="checkbox" id="showKeyLabels">
+                    <span>Computer Keys</span>
+                </label>
+
+
+                <button id="copySettingsButton">Copy my settings</button>
             </div>
-            <div class="expression-controls">
-                <label for="jamAlongVolume">Volume:</label>
-                <input type="range" id="jamAlongVolume" min="0" max="1" step="0.01" value="0.8">
-                <br>
-                <label for="jamAlongTempo">Tempo:</label>
-                <input type="range" id="jamAlongTempo" min="60" max="200" value="100">
+        </div>
+        <div class="keyboard-panel">
+            <div class="piano">
+                <div class="options">
+                    <div id="noteDisplay">None</div>
+                    <div class="instruments">
+                        <select id="instrumentSelect">
+                            <option value="Piano">Piano</option>
+                            <option value="Clavinet">Clavinet</option>
+                            <option value="Wurlitzer">Wurlitzer</option>
+                        </select>
+                    </div>
+                    <div class="jamAlongs">
+                        <select id="jamAlongSelect">
+                            <option value="Beat 1">Beat 1</option>
+                            <option value="Beat 2">Beat 2</option>
+                            <option value="Beat 3">Beat 3</option>
+                            <option value="Beat 4">Beat 4</option>
+                        </select>
+                    </div>
+                    <div class="play">
+                        <button id="playStopButton">Play</button>
+                    </div>
+                    <div class="option-row">
+                        <div class="slider-container">
+                            <label for="jamAlongVolume">Volume:</label>
+                            <input type="range" id="jamAlongVolume" min="0" max="1" step="0.01" value="0.8">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="slider-container">
+                            <label for="jamAlongTempo">Tempo:</label>
+                            <input type="range" id="jamAlongTempo" min="60" max="200" value="100">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="jamCardContainer" id="jamCardContainer" style="display: none;">
+                    <img id="jamCardImage" src="" alt="Jam Card">
+                </div>
+
+                <!-- Keyboard Key Labels Above Piano Keys -->
+
+                <div class="keyboard-labels lower-octave">
+                    <div class="key-label hidden">Z</div>
+                    <div class="key-label hidden">S</div>
+                    <div class="key-label hidden">X</div>
+                    <div class="key-label hidden">D</div>
+                    <div class="key-label hidden">C</div>
+                    <div class="key-label hidden"></div>
+                    <div class="key-label hidden">V</div>
+                    <div class="key-label hidden">G</div>
+                    <div class="key-label hidden">B</div>
+                    <div class="key-label hidden">H</div>
+                    <div class="key-label hidden">N</div>
+                    <div class="key-label hidden">J</div>
+                    <div class="key-label hidden">M</div>
+                    <div class="key-label hidden"></div>
+                    <div class="key-label">W</div>
+                    <!-- Mapping continues for all keys up to C5 -->
+                    <div class="key-label">3</div>
+                    <div class="key-label">E</div>
+                    <div class="key-label">4</div>
+                    <div class="key-label">R</div>
+                    <div class="key-label hidden"></div>
+                    <div class="key-label">T</div>
+                    <div class="key-label">6</div>
+                    <div class="key-label">Y</div>
+                    <div class="key-label">7</div>
+                    <div class="key-label">U</div>
+                    <div class="key-label">8</div>
+                    <div class="key-label">I</div>
+                    <div class="key-label hidden"></div>
+                    <div class="key-label">O</div>
+                </div>
+                <div class="keyboard-labels">
+                    <div class="key-label">Z</div>
+                    <div class="key-label">S</div>
+                    <div class="key-label">X</div>
+                    <div class="key-label">D</div>
+                    <div class="key-label">C</div>
+                    <div class="key-label hidden"></div>
+                    <div class="key-label">V</div>
+                    <div class="key-label">G</div>
+                    <div class="key-label">B</div>
+                    <div class="key-label">H</div>
+                    <div class="key-label">N</div>
+                    <div class="key-label">J</div>
+                    <div class="key-label">M</div>
+                    <div class="key-label hidden"></div>
+                    <div class="key-label"> , </div>
+                    <!-- Mapping continues for all keys up to C5 -->
+                    <div class="key-label hidden">3</div>
+                    <div class="key-label hidden">E</div>
+                    <div class="key-label hidden">4</div>
+                    <div class="key-label hidden">R</div>
+                    <div class="key-label hidden"></div>
+                    <div class="key-label hidden">T</div>
+                    <div class="key-label hidden">6</div>
+                    <div class="key-label hidden">Y</div>
+                    <div class="key-label hidden">7</div>
+                    <div class="key-label hidden">U</div>
+                    <div class="key-label hidden">8</div>
+                    <div class="key-label hidden">I</div>
+                    <div class="key-label hidden"></div>
+                    <div class="key-label hidden">O</div>
+                </div>
+                <!-- Key Containers -->
+                <div class="smallerKeys">
+                    <div class="white-key" id="1"></div>
+                    <span class="note-name-white">C</span>
+                    <div class="black-key black-key-2" id="2"></div>
+                    <span class="note-name-black-1">C# / Db</span>
+                </div>
+                <div class="smallerKeys">
+                    <div class="white-key" id="3"></div>
+                    <span class="note-name-white">D</span>
+                    <div class="black-key black-key-4" id="4"></div>
+                    <span class="note-name-black-3">D# / Eb</span>
+                </div>
+                <div class="smallerKeys">
+                    <div class="white-key" id="5"></div>
+                    <span class="note-name-white">E</span>
+                </div>
+                <div class="largerKeys">
+                    <div class="white-key" id="6"></div>
+                    <span class="note-name-white">F</span>
+                    <div class="black-key black-key-1" id="7"></div>
+                    <span class="note-name-black-1">F# / Gb</span>
+                </div>
+                <div class="largerKeys">
+                    <div class="white-key" id="8"></div>
+                    <span class="note-name-white">G</span>
+                    <div class="black-key black-key-3" id="9"></div>
+                    <span class="note-name-black-2">G# / Ab</span>
+                </div>
+                <div class="largerKeys">
+                    <div class="white-key" id="10"></div>
+                    <span class="note-name-white">A</span>
+                    <div class="black-key black-key-5" id="11"></div>
+                    <span class="note-name-black-3">A# / Bb</span>
+                </div>
+                <div class="largerKeys">
+                    <div class="white-key" id="12"></div>
+                    <span class="note-name-white">B</span>
+                </div>
+                <div class="smallerKeys">
+                    <div class="white-key" id="13"></div>
+                    <span class="note-name-white">C</span>
+                    <div class="black-key black-key-2" id="14"></div>
+                    <span class="note-name-black-1">C# / Db</span>
+                </div>
+                <div class="smallerKeys">
+                    <div class="white-key" id="15"></div>
+                    <span class="note-name-white">D</span>
+                    <div class="black-key black-key-4" id="16"></div>
+                    <span class="note-name-black-3">D# / Eb</span>
+                </div>
+                <div class="smallerKeys">
+                    <div class="white-key" id="17"></div>
+                    <span class="note-name-white">E</span>
+                </div>
+                <div class="largerKeys">
+                    <div class="white-key" id="18"></div>
+                    <span class="note-name-white">F</span>
+                    <div class="black-key black-key-1" id="19"></div>
+                    <span class="note-name-black-1">F# / Gb</span>
+                </div>
+                <div class="largerKeys">
+                    <div class="white-key" id="20"></div>
+                    <span class="note-name-white">G</span>
+                    <div class="black-key black-key-3" id="21"></div>
+                    <span class="note-name-black-2">G# / Ab</span>
+                </div>
+                <div class="largerKeys">
+                    <div class="white-key" id="22"></div>
+                    <span class="note-name-white">A</span>
+                    <div class="black-key black-key-5" id="23"></div>
+                    <span class="note-name-black-3">A# / Bb</span>
+                </div>
+                <div class="largerKeys">
+                    <div class="white-key" id="24"></div>
+                    <span class="note-name-white">B</span>
+                </div>
+                <div class="smallerKeys">
+                    <div class="white-key" id="25"></div>
+                    <span class="note-name-white">C</span>
+                </div>
             </div>
         </div>
     </div>
-    <!-- Viewing Options Container-->
-    <div class="options">
-        <label for="showNoteNames" id="labelShowNoteNames"><input type="checkbox" id="showNoteNames" checked><span>Show
-                Note Names</span></label>
-        <label for="showJamCards" id="labelShowJamCards"><input type="checkbox" id="showJamCards" checked><span>Hide Jam
-                Cards</span></label>
-        <label for="showKeyLabels" id="labelShowKeyLabels"><input type="checkbox" id="showKeyLabels"><span>Hide
-                Computer Keys
-            </span></label>
-        <label for="showControls" id="labelShowControls"><input type="checkbox" id="showControls" checked><span>Show
-                Controls</span></label>
 
+    <!-- Pop-Up Overlay -->
+    <div id="popupOverlay" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <h2>Use this QR Code to copy my settings</h2>
+            <!-- QR Code or Message will go here -->
+            <div id="qrCodeContainer"></div>
+            <button id="closePopup">Close</button>
+        </div>
     </div>
-
-    <!-- Jam Card Container-->
-
-
-
-    <div class="piano">
-        <div class="jamCardContainer" id="jamCardContainer" style="display: none;">
-            <img id="jamCardImage" src="" alt="Jam Card">
-        </div>
-
-        <!-- Keyboard Key Labels Above Piano Keys -->
-
-        <div class="keyboard-labels lower-octave">
-            <div class="key-label hidden">Z</div>
-            <div class="key-label hidden">S</div>
-            <div class="key-label hidden">X</div>
-            <div class="key-label hidden">D</div>
-            <div class="key-label hidden">C</div>
-            <div class="key-label hidden"></div>
-            <div class="key-label hidden">V</div>
-            <div class="key-label hidden">G</div>
-            <div class="key-label hidden">B</div>
-            <div class="key-label hidden">H</div>
-            <div class="key-label hidden">N</div>
-            <div class="key-label hidden">J</div>
-            <div class="key-label hidden">M</div>
-            <div class="key-label hidden"></div>
-            <div class="key-label">W</div>
-            <!-- Mapping continues for all keys up to C5 -->
-            <div class="key-label">3</div>
-            <div class="key-label">E</div>
-            <div class="key-label">4</div>
-            <div class="key-label">R</div>
-            <div class="key-label hidden"></div>
-            <div class="key-label">T</div>
-            <div class="key-label">6</div>
-            <div class="key-label">Y</div>
-            <div class="key-label">7</div>
-            <div class="key-label">U</div>
-            <div class="key-label">8</div>
-            <div class="key-label">I</div>
-            <div class="key-label hidden"></div>
-            <div class="key-label">O</div>
-        </div>
-        <div class="keyboard-labels">
-            <div class="key-label">Z</div>
-            <div class="key-label">S</div>
-            <div class="key-label">X</div>
-            <div class="key-label">D</div>
-            <div class="key-label">C</div>
-            <div class="key-label hidden"></div>
-            <div class="key-label">V</div>
-            <div class="key-label">G</div>
-            <div class="key-label">B</div>
-            <div class="key-label">H</div>
-            <div class="key-label">N</div>
-            <div class="key-label">J</div>
-            <div class="key-label">M</div>
-            <div class="key-label hidden"></div>
-            <div class="key-label"> , </div>
-            <!-- Mapping continues for all keys up to C5 -->
-            <div class="key-label hidden">3</div>
-            <div class="key-label hidden">E</div>
-            <div class="key-label hidden">4</div>
-            <div class="key-label hidden">R</div>
-            <div class="key-label hidden"></div>
-            <div class="key-label hidden">T</div>
-            <div class="key-label hidden">6</div>
-            <div class="key-label hidden">Y</div>
-            <div class="key-label hidden">7</div>
-            <div class="key-label hidden">U</div>
-            <div class="key-label hidden">8</div>
-            <div class="key-label hidden">I</div>
-            <div class="key-label hidden"></div>
-            <div class="key-label hidden">O</div>
-        </div>
-        <!-- Key Containers -->
-        <div class="key-container">
-            <div class="white-key" id="1"></div>
-            <span class="note-name-white">C</span>
-            <div class="black-key" id="2"></div>
-            <span class="note-name-black">C# / Db</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="3"></div>
-            <span class="note-name-white">D</span>
-            <div class="black-key" id="4"></div>
-            <span class="note-name-black">D# / Eb</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="5"></div>
-            <span class="note-name-white">E</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="6"></div>
-            <span class="note-name-white">F</span>
-            <div class="black-key" id="7"></div>
-            <span class="note-name-black">F# / Gb</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="8"></div>
-            <span class="note-name-white">G</span>
-            <div class="black-key" id="9"></div>
-            <span class="note-name-black">G# / Ab</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="10"></div>
-            <span class="note-name-white">A</span>
-            <div class="black-key" id="11"></div>
-            <span class="note-name-black">A# / Bb</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="12"></div>
-            <span class="note-name-white">B</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="13"></div>
-            <span class="note-name-white">C</span>
-            <div class="black-key" id="14"></div>
-            <span class="note-name-black">C# / Db</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="15"></div>
-            <span class="note-name-white">D</span>
-            <div class="black-key" id="16"></div>
-            <span class="note-name-black">D# / Eb</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="17"></div>
-            <span class="note-name-white">E</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="18"></div>
-            <span class="note-name-white">F</span>
-            <div class="black-key" id="19"></div>
-            <span class="note-name-black">F# / Gb</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="20"></div>
-            <span class="note-name-white">G</span>
-            <div class="black-key" id="21"></div>
-            <span class="note-name-black">G# / Ab</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="22"></div>
-            <span class="note-name-white">A</span>
-            <div class="black-key" id="23"></div>
-            <span class="note-name-black">A# / Bb</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="24"></div>
-            <span class="note-name-white">B</span>
-        </div>
-        <div class="key-container">
-            <div class="white-key" id="25"></div>
-            <span class="note-name-white">C</span>
-        </div>
-
-    </div>
-
-
-
-
-
-
-
 
     <script src="Keyboard15.js"></script>
 
