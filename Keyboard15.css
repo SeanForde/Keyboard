@@ -2,8 +2,16 @@
 html,
 body {
     touch-action: manipulation;
+    font-size: 16px;
     overflow: scroll;
     /* Prevent scrolling */
+}
+
+.controls label,
+.controls button,
+.controls select {
+    font-size: 1em;
+    /* 1em will equal the font-size of the body */
 }
 
 header {
@@ -64,23 +72,10 @@ h1 {
 }
 
 
-
-@media (max-width: 600px) {
-
-    select,
-    label {
-        font-size: medium;
-        /* Increase font size for better readability and touch */
-        padding: 0px;
-        /* Larger padding for easier interaction */
-    }
-}
-
-
 /* Hide the piano and show the alert in portrait mode */
 @media screen and (orientation: portrait) {
 
-    .piano,
+    .main-container,
     .controls,
     .jamCardContainer {
         border: 0px solid #42E2D9;
@@ -114,7 +109,7 @@ h1 {
         display: none;
     }
 
-    .piano,
+    .main-container,
     .controls {
         display: block;
     }
@@ -141,13 +136,13 @@ body {
     /* 6 columns */
     grid-template-rows: auto auto auto;
     /* 3 rows */
-    gap: 10px;
+    gap: 5px;
     /* Space between grid items */
     padding: 10px;
     /* Padding around the grid */
     text-align: center;
     margin-bottom: 10px;
-    background-color: #8C52DB;
+    background-color: #3d1773;
     /* Primary Purple */
     border-radius: 10px;
     color: #FFFFFF;
@@ -155,19 +150,11 @@ body {
     width: 80%;
 }
 
-
-.jam-card-controls {
-    display: grid;
-    grid-column: 1 / 3;
-    /* Span 2 columns */
-    grid-row: 1 / span 3;
-    /* Span all 3 rows */
-    text-align: center;
-    border: 1px solid #AFC9FF;
-    padding: 10px;
-    border-radius: 10px;
-    align-items: center;
-    gap: 10px;
+.roots,
+.jam-cards,
+.jam-card-message {
+    width: 100%;
+    margin-bottom: 5px;
 }
 
 .jamCardContainer {
@@ -188,17 +175,18 @@ body {
     /* Adjust based on your layout */
     width: 70%;
     /* Your existing style */
-    z-index: 11;
+    z-index: 9;
 
 }
 
 
 
-
 .title {
+    font-size: 16px;
     font-weight: bold;
-    text-align: left;
-    vertical-align: top;
+    margin-bottom: 5px;
+    /* Slightly space out title from controls */
+    text-align: center;
 }
 
 .jamTrack {
@@ -219,47 +207,143 @@ body {
     text-align: center;
 }
 
-.note-display-controls {
-    grid-column: 3 / span 1;
-    /* Span 1 column */
-    grid-row: 1 / span 3;
-    /* Span all 3 rows */
-    text-align: center;
-    border: 1px solid #AFC9FF;
-    padding: 10px;
-    border-radius: 10px;
+.progression-boxes {
     display: grid;
-    align-items: center;
-    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2%;
+    margin-top: 5px;
 }
+
+.progression-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 50px;
+    height: 10px;
+    /* Adjust size as needed */
+    margin: 1.5%;
+    /* Space between boxes */
+    background-color: #f0f0f0;
+    /* Light grey background */
+    color: #333;
+    /* Dark text for contrast */
+    font-size: 16px;
+    /* Large, readable text */
+    font-weight: bold;
+    /* Bold text */
+    border-radius: 5px;
+    /* Rounded corners */
+    border: none;
+    /* Remove default border */
+    cursor: pointer;
+}
+
+
+/* Initially hidden, space maintained */
+.progression-boxes {
+    visibility: hidden;
+    opacity: 0;
+}
+
+
+.instrument-note-display-controls {
+    background: #8C52DB;
+    /* A cool, inviting purple */
+    color: #FFFFFF;
+    /* White text for contrast */
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+    /* Subtle shadow for depth */
+    margin: 5px 10px;
+}
+
+/* Basic styling for dropdown selects */
+#instrumentSelect,
+#jamAlongSelect {
+    padding: 5px;
+    /* Adequate padding for clickability */
+    margin: 5px;
+    /* Consistent margin */
+    background-color: #fff;
+    /* Light background */
+    border: 1px solid #ccc;
+    /* Subtle border */
+    border-radius: 4px;
+    /* Softened corners */
+    font-size: 16px;
+    /* Legible text */
+    color: #333;
+    /* Dark text for readability */
+    width: calc(100% - 20px);
+    /* Full width minus margin */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Slight shadow for depth */
+    appearance: none;
+    /* Remove default styling */
+    cursor: pointer;
+    /* Indicate it's clickable */
+}
+
+/* Adding a custom dropdown arrow */
+#instrumentSelect,
+#jamAlongSelect {
+    background-image: linear-gradient(45deg, transparent 50%, gray 50%),
+        linear-gradient(135deg, gray 50%, transparent 50%);
+    background-position: right 15px top 50%, right 10px top 50%;
+    /* Adjust arrow position */
+    background-size: 5px 5px, 5px 5px;
+    /* Arrow size */
+    background-repeat: no-repeat;
+}
+
+/* Focus state for accessibility */
+#instrumentSelect:focus,
+#jamAlongSelect:focus {
+    border-color: #80bdff;
+    /* Highlight color */
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+}
+
+
+
+
+
+
+
+
 
 .jam-along-controls {
     grid-column: 4 / span 3;
     /* Span 3 columns */
     grid-row: 1 / span 3;
     /* Span all 3 rows */
-    border: 1px solid #AFC9FF;
     padding: 10px;
     border-radius: 10px;
     display: grid;
     align-items: center;
     gap: 10px;
+    background: #8C52DB;
+    /* A cool, inviting purple */
+    color: #FFFFFF;
+    /* White text for contrast */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+    /* Subtle shadow for depth */
 }
 
-
-#jamAlongSelect,
-#playAlongVolume {
-    margin: 0 5px;
-}
 
 #playStopButton {
-    margin-top: 10px;
-    padding: 10px 20px;
+    margin-top: 0px;
+    padding: 10px 10px;
     /* Increase padding for a larger button */
     background-color: #DC387D;
     /* Green background color */
     color: white;
     /* White text color */
+    align-items: center;
     border: none;
     /* Remove border */
     border-radius: 5px;
@@ -276,74 +360,158 @@ body {
     /* Darker green on hover */
 }
 
+.main-container {
+    display: grid;
+    grid-template-columns: 15% 85%;
+    gap: 1%;
+    height: auto;
+    width: 98%;
+}
+
+
+.side-panel {
+    padding: 10px;
+    background-color: #727F95;
+    /* Consistent with piano background */
+    color: white;
+    /* Text color */
+    border-right: 2px solid #42E2D9;
+    border: 3px solid #42E2D9;
+    border-radius: 10px;
+    /* Accent border color */
+}
+
+.keyboard-panel {
+    width: 100%;
+}
+
+.keyboard {
+    width: 100%;
+    display: grid;
+    gap: 2px;
+    /* Optional: adds a gap between keys */
+}
 
 .piano {
     display: flex;
     flex-direction: column;
-    /* This ensures that the labels and keys are stacked vertically */
+    flex-wrap: nowrap;
+    justify-content: center;
     align-items: center;
     border: 3px solid #42E2D9;
     border-radius: 10px;
     background-color: #727F95;
     padding: 0px;
     position: relative;
-    /* This ensures the piano is the reference point for its children */
-    width: fit-content;
-    /* Adjusts the width to fit its content, which is the set of keys */
     overflow: hidden;
-    /* Prevent overflow from causing extra space */
+    width: fit-content;
+
 }
 
-.key-container {
+.smallerKeys {
+    position: relative;
+    display: inline-block;
+    width: 4.75vw;
+    /* Adjust as needed */
+}
+
+.largerKeys {
     position: relative;
     display: inline-block;
     width: 5vw;
     /* Adjust as needed */
 }
 
+
+
 .white-key {
     height: 40vh;
-    /* Adjust for desired height */
     width: 100%;
     background-color: #FFFFFF;
-    /* White keys */
     border: 1px solid #727F95;
-    /* Cool Gray 1 for border */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 1.2);
-    /* Add a subtle shadow */
     transition: box-shadow 0.1s ease;
-    /* Smooth transition for the shadow */
     cursor: pointer;
 }
 
-.black-key {
+.black-key-1 {
     height: 24vh;
-    /* Adjust for desired height */
-    width: 60%;
+    width: 58.33%;
     background-color: #000000;
-    /* Black keys */
     position: absolute;
     top: 0;
-    left: 70%;
-    /* Adjust as needed */
+    left: 58%;
     z-index: 1;
     border: 1px solid #727F95;
-    /* Cool Gray 1 for border */
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
-    /* Darker shadow for contrast */
     transition: box-shadow 0.1s ease;
     cursor: pointer;
 }
 
-/* Example overrides for specific black keys */
-.black-key:nth-child(1) {
-    left: 70%;
+.black-key-2 {
+    height: 24vh;
+    width: 58.33%;
+    background-color: #000000;
+    position: absolute;
+    top: 0;
+    left: 63%;
+    z-index: 1;
+    border: 1px solid #727F95;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+    transition: box-shadow 0.1s ease;
+    cursor: pointer;
 }
 
-/* For C3# */
-.black-key:nth-child(2) {
-    left: 90%;
+.black-key-3 {
+    height: 24vh;
+    width: 58.33%;
+    background-color: #000000;
+    position: absolute;
+    top: 0;
+    left: 72.5%;
+    z-index: 1;
+    border: 1px solid #727F95;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+    transition: box-shadow 0.1s ease;
+    cursor: pointer;
 }
+
+.black-key-4 {
+    height: 24vh;
+    width: 58.33%;
+    background-color: #000000;
+    position: absolute;
+    top: 0;
+    left: 83%;
+    z-index: 1;
+    border: 1px solid #727F95;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+    transition: box-shadow 0.1s ease;
+    cursor: pointer;
+}
+
+.black-key-5 {
+    height: 24vh;
+    width: 58.33%;
+    background-color: #000000;
+    position: absolute;
+    top: 0;
+    left: 87%;
+    z-index: 1;
+    border: 1px solid #727F95;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+    transition: box-shadow 0.1s ease;
+    cursor: pointer;
+}
+
+.key-container,
+.piano,
+.smallerKeys,
+.largerKeys {
+    box-sizing: border-box;
+    /* Include padding and border in the width */
+}
+
 
 /* Style for pressed keys */
 .key-pressed {
@@ -352,11 +520,9 @@ body {
     /* Example to remove shadow to mimic pressing */
 }
 
-
-
 .note-name-white {
     position: absolute;
-    top: 90%;
+    bottom: 1%;
     /* Adjust as needed */
     left: 50%;
     /* Center horizontally */
@@ -371,9 +537,26 @@ body {
     /* Prevents the note name from interfering with key clicks */
 }
 
-.note-name-black {
+.note-name-black-1 {
     position: absolute;
-    top: 40%;
+    bottom: 42%;
+    /* Adjust as needed */
+    left: 90%;
+    /* Center horizontally */
+    transform: translateX(-50%);
+    /* Adjust horizontal centering */
+    color: rgb(255, 255, 255);
+    /* or white, depending on key color */
+    font-weight: bold;
+    pointer-events: none;
+    text-align: center;
+    z-index: 1;
+    /* Prevents the note name from interfering with key clicks */
+}
+
+.note-name-black-2 {
+    position: absolute;
+    bottom: 42%;
     /* Adjust as needed */
     left: 100%;
     /* Center horizontally */
@@ -388,15 +571,32 @@ body {
     /* Prevents the note name from interfering with key clicks */
 }
 
+.note-name-black-3 {
+    position: absolute;
+    bottom: 42%;
+    /* Adjust as needed */
+    left: 115%;
+    /* Center horizontally */
+    transform: translateX(-50%);
+    /* Adjust horizontal centering */
+    color: rgb(255, 255, 255);
+    /* or white, depending on key color */
+    font-weight: bold;
+    pointer-events: none;
+    text-align: center;
+    z-index: 1;
+    /* Prevents the note name from interfering with key clicks */
+}
+
 .options {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
     justify-content: center;
-    /* Center children horizontally */
-    padding: 20px;
+    flex-direction: row;
+    padding: 10px;
     border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    margin-top: 20px;
-    background: rgba(255, 255, 255, 0.1);
+    margin-top: 0px;
+    background: rgba(0, 0, 0, 0.1);
 }
 
 .options label {
@@ -410,50 +610,87 @@ body {
     font-size: 16px;
 }
 
-/* Custom checkbox styling remains the same */
-.checkmark {
-    height: 25px;
-    width: 25px;
-    background-color: #555;
-    border-radius: 5px;
-    margin-right: 10px;
-    /* Space between the checkmark and label text */
-    display: flex;
+
+#noteDisplay {
     align-items: center;
-    justify-content: center;
+    background: #0c9a98;
+    /* Typically LED backgrounds are black */
+    border-radius: 5px;
+    /* Optional: round the corners for a softer look */
+    border: 1px solid #333;
+    /* Optional: add a border to simulate the edge of the LED screen */
+    box-shadow: inset 0 0 10px #000;
+    /* Inner shadow to give depth */
+    color: #4B0082;
+    display: inline-block;
+    /* Allow the container size to fit the content */
+    padding: 10px;
+    font-family: 'Lucida Console', 'Courier New', monospace;
+    /* Calculator-like fonts */
+    font-size: 18px;
+    font-weight: bold;
+    height: auto;
+    overflow: hidden;
+    text-shadow:
+        0 0 1px #4B0082,
+        /* Glowing effect */
+        0 0 1px #4B0082,
+        0 0 1px #4B0082;
+    text-overflow: ellipsis;
+    text-align: center;
+    white-space: nowrap;
+    width: 100px;
 }
 
-.options input[type="checkbox"] {
-    opacity: 0;
-    position: absolute;
+
+
+
+/* Style adjustments for checkbox labels */
+.toggle-label {
+    display: inline-block;
+    margin: 5%;
+    background-color: #42E2D9;
+    /* Bootstrap primary color for demonstration */
+    color: #8C52DB;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    user-select: none;
+    /* Prevent text selection */
 }
 
-.options input:checked+.checkmark {
-    background-color: #4CAF50;
-}
-
-.checkmark:after {
-    content: '';
+/* Hides the actual checkbox input */
+.toggle-label input[type="checkbox"] {
     display: none;
 }
 
-.options input:checked+.checkmark:after {
-    display: block;
-    width: 8px;
-    height: 12px;
-    border: solid white;
-    border-width: 0 3px 3px 0;
-    transform: rotate(45deg);
+/* Styling for when a checkbox is checked */
+.toggle-label input[type="checkbox"]:checked+span {
+    /* Bootstrap success color for demonstration */
+    color: #8C52DB;
 }
 
-.options label:hover {
-    color: #4CAF50;
+/* Optional: Styling for hover state */
+.toggle-label:hover {
+    background-color: #ffffff;
+    /* Darker shade for hover state */
 }
 
-.options label,
-.checkmark {
-    transition: background-color 0.3s, color 0.3s;
+/* Optional: Styling for active/clicked state */
+.toggle-label:active {
+    transform: translateY(2px);
+    /* Mimic button press down effect */
 }
+
+
+
+
 
 
 
@@ -500,6 +737,107 @@ body {
     width: 1.5vh;
     height: 1.5vh;
 }
+
+select {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    cursor: pointer;
+}
+
+.progression-boxes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+    visibility: hidden;
+    /* Initially hidden */
+}
+
+.progression-box {
+    height: 40px;
+    /* Example height */
+    background-color: #efefef;
+    /* Light grey background */
+    border: 1px solid #dddddd;
+    /* Slightly darker border */
+    border-radius: 5px;
+    /* Rounded corners */
+}
+
+/* Checkbox labels */
+label {
+    display: block;
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+/* Styling for the 'Copy my settings' button */
+#copySettingsButton {
+    background-color: #DC387D;
+    /* Green background */
+    color: white;
+    /* White text */
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    /* Ensure it's visibly separate from the options above */
+    width: 100%;
+    /* Full width */
+    box-sizing: border-box;
+    /* Include padding and border in the element's total width and height */
+    text-align: center;
+}
+
+#copySettingsButton:hover {
+    background-color: #45a049;
+    /* Darker green on hover */
+}
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background-color: #F8F9FA;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 60%;
+    max-width: 400px;
+    text-align: center;
+}
+
+#closePopup {
+    padding: 10px 20px;
+    background-color: #DC3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+#closePopup:hover {
+    background-color: #c82333;
+}
+
+
+
 
 .hidden {
     visibility: hidden;
