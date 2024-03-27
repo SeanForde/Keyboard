@@ -24,17 +24,17 @@ const noteToIdMapping = {
 const chromaticScale = ["C", "C# / Db", "D", "D# / Eb", "E", "F", "F# / Gb", "G", "G# / Ab", "A", "A# / Bb", "B"];
 
 const noteToMarginMapping = {
-    "C": "0.69",
-    "C# / Db": "4.53",
-    "D": "8.38",
-    "D# / Eb": "12.23",
-    "E": "16.07",
-    "F": "19.92",
-    "F# / Gb": "23.76",
-    "G": "27.61",
-    "G# / Ab": "31.46",
-    "A": "35.30",
-    "A# / Bb": "39.15",
+    "C": "0",
+    "C# / Db": "3.8",
+    "D": "7.75",
+    "D# / Eb": "11.65",
+    "E": "15.55",
+    "F": "19.5",
+    "F# / Gb": "23.4",
+    "G": "27.3",
+    "G# / Ab": "31.2",
+    "A": "35.2",
+    "A# / Bb": "39",
     "B": "43"
 };
 
@@ -77,8 +77,19 @@ const keyboardToNoteMapping = {
 let jamAlongAudio = null;
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const gainNode = audioContext.createGain();
+gainNode.gain.value = 0.1; // Set volume to 90%
+gainNode.connect(audioContext.destination);
+
+
+
 
 let audioBuffers = {}; // Replace `audioFiles` initialization
+
+let currentProgression = '';
+
+
+
 
 // Drag-related variables
 let isDragging = false;
@@ -91,29 +102,69 @@ document.addEventListener("DOMContentLoaded", async function () {
     const noteIds = Object.keys(noteMapping);
     const promises = noteIds.map(noteId => {
         const noteName = noteMapping[noteId];
-        const url = `keyboardNotes/${noteId}.mp3`;
+        const url = `keyboardNotes/Piano/${noteId}.mp3`;
         return fetch(url)
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
             .then(audioBuffer => {
                 audioBuffers[noteName] = audioBuffer;
             });
+        checkOrientation();
     });
 
     await Promise.all(promises).then(() => {
         console.log('All audio files loaded into buffers');
     }).catch(error => console.error('Error loading audio files into buffers:', error));
+    setDropdownsFromParameters();
+    setVisibilityControlsFromParameters();
 
-    // Additional initialization code can go here, if any
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Ensure all elements are loaded before attaching listeners
+    const copySettingsButton = document.getElementById('copySettingsButton');
+    const popupOverlay = document.getElementById('popupOverlay');
+    const closePopupButton = document.getElementById('closePopup');
+    const qrCodeContainer = document.getElementById('qrCodeContainer');
+
+    // Event listener for "Copy my settings" button
+    copySettingsButton.addEventListener('click', function () {
+        console.log('Pop-up should be displayed')
+        // Construct the settings URL dynamically
+        const settingsUrl = constructSettingsUrl();
+        // Generate QR code URL
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(settingsUrl)}`;
+        // Set QR code URL to img src within the container
+        qrCodeContainer.innerHTML = `<img src="${qrCodeUrl}" alt="Settings QR Code">`;
+        // Show the popup
+        popupOverlay.style.display = 'flex';
+    });
+
+    // Close popup functionality
+    closePopupButton.addEventListener('click', function () {
+        popupOverlay.style.display = 'none';
+    });
+
+    // Function to construct settings URL dynamically based on current settings
+    function constructSettingsUrl() {
+        const baseUrl = window.location.href.split('?')[0];
+        const root = document.getElementById('rootSelect').value;
+        const jamcard = document.getElementById('jamCardSelect').value;
+        const showNoteNames = document.getElementById('showNoteNames').checked;
+        const showJamCards = document.getElementById('showJamCards').checked;
+        const showKeyLabels = document.getElementById('showKeyLabels').checked;
+        return `${baseUrl}?root=${root}&jamcard=${jamcard}&showNoteNames=${showNoteNames}&showJamCards=${showJamCards}&showKeyLabels=${showKeyLabels}`;
+    }
 });
 
 
 // Define loadAudioFiles function here
-async function loadAudioFiles() {
+async function loadAudioFiles(selectedInstrument) {
     const noteIds = Object.keys(noteMapping);
     const promises = noteIds.map(noteId => {
         const noteName = noteMapping[noteId];
-        const url = `keyboardNotes/${noteId}.mp3`;
+        // Update the URL path to include the selectedInstrument folder name
+        const url = `keyboardNotes/${selectedInstrument}/${noteId}.mp3`;
         return fetch(url)
             .then(response => response.arrayBuffer())
             .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
@@ -124,28 +175,82 @@ async function loadAudioFiles() {
 
     try {
         await Promise.all(promises);
-        console.log('All audio files loaded into buffers');
+        console.log('All audio files for', selectedInstrument, 'loaded into buffers');
     } catch (error) {
         console.error('Error loading audio files into buffers:', error);
     }
 }
 
 
+function getURLParameters() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+        root: params.get('root'),
+        jamcard: params.get('jamcard'),
+        showNoteNames: params.get('showNoteNames'),
+        showJamCards: params.get('showJamCards'),
+        showKeyLabels: params.get('showKeyLabels'),
+        showControls: params.get('showControls')
+    };
+}
+
+function setVisibilityControlsFromParameters() {
+    const {
+        showNoteNames,
+        showJamCards,
+        showKeyLabels
+    } = getURLParameters();
+
+    const showNoteNamesCheckbox = document.getElementById('showNoteNames');
+    const showJamCardsCheckbox = document.getElementById('showJamCards');
+    const showKeyLabelsCheckbox = document.getElementById('showKeyLabels');
+
+    if (showNoteNames !== null) showNoteNamesCheckbox.checked = showNoteNames === 'true';
+    if (showJamCards !== null) showJamCardsCheckbox.checked = showJamCards === 'true';
+    if (showKeyLabels !== null) showKeyLabelsCheckbox.checked = showKeyLabels === 'true';
+
+    // Trigger the change events for these checkboxes to apply the changes
+    showNoteNamesCheckbox.dispatchEvent(new Event('change'));
+    showJamCardsCheckbox.dispatchEvent(new Event('change'));
+    showKeyLabelsCheckbox.dispatchEvent(new Event('change'));
+}
+
+function setDropdownsFromParameters() {
+    const { root, jamcard } = getURLParameters();
+
+    if (root && jamcard) {
+        const rootSelect = document.getElementById('rootSelect');
+        const jamCardSelect = document.getElementById('jamCardSelect');
+
+        if (rootSelect && jamCardSelect) {
+            rootSelect.value = root;
+            jamCardSelect.value = jamcard;
+
+            // Manually trigger change events as setting value programmatically doesn't do this
+            rootSelect.dispatchEvent(new Event('change'));
+            jamCardSelect.dispatchEvent(new Event('change'));
+        }
+    }
+}
+
 
 function handleKeyPress(noteNumber) {
     const noteName = noteMapping[noteNumber];
-    document.getElementById('noteName').textContent = noteName;
+    document.getElementById('noteDisplay').textContent = `${noteName}`;
 }
 
+
+
 function clearCardTones() {
-    var keys = document.querySelectorAll('.white-key, .black-key');
-    keys.forEach(function (key) {
-        // Reset only non-root keys
-        if (!key.classList.contains('root-key')) {
-            key.style.backgroundColor = key.classList.contains('white-key') ? '#FFFFFF' : '#000000';
-        }
+    const keys = document.querySelectorAll('.white-key, .black-key-1, .black-key-2, .black-key-3, .black-key-4, .black-key-5');
+    keys.forEach(key => {
+        // Reset background color for all keys
+        key.style.backgroundColor = key.classList.contains('white-key') ? '#FFFFFF' : '#000000';
+        // If you are using a special class for the root key, consider removing it to reset its state
+        key.classList.remove('root-key');
     });
 }
+
 
 function colorRootNotes(rootNote) {
     clearCardTones();
@@ -172,7 +277,7 @@ function colorRootNotes(rootNote) {
             var keyElement = document.getElementById(keyId);
             if (keyElement) {
                 keyElement.classList.add('root-key');
-                keyElement.style.backgroundColor = '#8C52DB';
+                keyElement.style.backgroundColor = '#DC387D';
             }
         });
     }
@@ -187,11 +292,18 @@ function getAllIndices(arr, val) {
 }
 
 function colorKey(keyId, color) {
+    // This assumes your black keys have IDs that still correlate correctly with your mapping
     let keyElement = document.getElementById(keyId.toString());
-    if (keyElement && !keyElement.classList.contains('root-key')) {
-        keyElement.style.backgroundColor = color;
+    if (keyElement) {
+        // Apply color change to all related black key variants
+        if (keyElement.classList.contains('black-key-1') || keyElement.classList.contains('black-key-2') || keyElement.classList.contains('black-key-3')) {
+            keyElement.style.backgroundColor = color;
+        } else if (!keyElement.classList.contains('root-key')) {
+            keyElement.style.backgroundColor = color; // For white keys or non-variant black keys
+        }
     }
 }
+
 
 function getNoteKeyIds(note) {
     // Mapping of note names to their corresponding key IDs
@@ -228,7 +340,7 @@ function colorPentatonicScale(rootNote, chromaticScale) {
             let noteIndex = (rootIndex + interval) % chromaticScale.length;
             let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
             keyIds.forEach(keyId => {
-                colorKey(keyId, '#3E78F1');
+                colorKey(keyId, '#42E2D9');
             });
         });
     });
@@ -247,7 +359,7 @@ function colorMinorPentatonicScale(rootNote, chromaticScale) {
             let noteIndex = (rootIndex + interval) % chromaticScale.length;
             let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
             keyIds.forEach(keyId => {
-                colorKey(keyId, '#3E78F1'); // Or another color to differentiate from major pentatonic
+                colorKey(keyId, '#42E2D9'); // Or another color to differentiate from major pentatonic
             });
         });
     });
@@ -266,7 +378,7 @@ function colorMajorScale(rootNote, chromaticScale) {
             let noteIndex = (rootIndex + interval) % chromaticScale.length;
             let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
             keyIds.forEach(keyId => {
-                colorKey(keyId, '#3E78F1'); // Use a distinct color for the Major scale
+                colorKey(keyId, '#42E2D9'); // Use a distinct color for the Major scale
             });
         });
     });
@@ -285,7 +397,7 @@ function colorHarmonicMinorScale(rootNote, chromaticScale) {
             let noteIndex = (rootIndex + interval) % chromaticScale.length;
             let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
             keyIds.forEach(keyId => {
-                colorKey(keyId, '#3E78F1'); // Use a distinct color for the Harmonic Minor scale
+                colorKey(keyId, '#42E2D9'); // Use a distinct color for the Harmonic Minor scale
             });
         });
     });
@@ -305,7 +417,7 @@ function colorBluesScale(rootNote, chromaticScale) {
             let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
             keyIds.forEach(keyId => {
                 // Special color for interval 10
-                const color = interval === 6 ? '#DC387D' : '#3E78F1';
+                const color = interval === 6 ? '#3E78F1' : '#42E2D9';
                 colorKey(keyId, color);
             });
         });
@@ -325,7 +437,7 @@ function colorMajorChords(rootNote, chromaticScale) {
             let noteIndex = (rootIndex + interval) % chromaticScale.length;
             let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
             keyIds.forEach(keyId => {
-                colorKey(keyId, '#3E78F1'); // Use a distinct color for Major chords
+                colorKey(keyId, '#42E2D9'); // Use a distinct color for Major chords
             });
         });
     });
@@ -344,7 +456,7 @@ function colorMinorChords(rootNote, chromaticScale) {
             let noteIndex = (rootIndex + interval) % chromaticScale.length;
             let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
             keyIds.forEach(keyId => {
-                colorKey(keyId, '#3E78F1'); // Use a distinct color for Minor chords
+                colorKey(keyId, '#42E2D9'); // Use a distinct color for Minor chords
             });
         });
     });
@@ -363,28 +475,138 @@ function colorDominant7thChords(rootNote, chromaticScale) {
             let noteIndex = (rootIndex + interval) % chromaticScale.length;
             let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
             keyIds.forEach(keyId => {
-                colorKey(keyId, '#3E78F1'); // Use a distinct color for Dominant 7th chords
+                colorKey(keyId, '#42E2D9'); // Use a distinct color for Dominant 7th chords
             });
         });
     });
 }
 
-function adjustJamCardImageMargin(rootNote) {
+function colorProgression145(rootNote, chromaticScale) {
+    // Chord tones intervals for a major chord (root, major third, perfect fifth)
+    const chordTones = [0, 4, 7];
 
-    const rootKeyElement = document.querySelector(`.key[data-note="${rootNote}"]`);
-
-    if (rootKeyElement) {
-        // Calculate the new margin based on the mapping
-        const newLeftMargin = noteToMarginMapping[rootNote];
-
-        // Check if the newLeftMargin is defined to avoid setting undefined or incorrect values
-        if (newLeftMargin !== undefined) {
-            const jamCardImage = document.getElementById('jamCardImage');
-            // Append the '%' symbol to make it a valid CSS value
-            jamCardImage.style.left = `${newLeftMargin}%`;
-        }
+    // Find indices of the root note within the chromatic scale
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
     }
+
+    rootIndices.forEach(rootIndex => {
+        // For each interval (including the root itself)
+        chordTones.forEach(interval => {
+            // Calculate the note index within the scale
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            // Fetch key IDs for the calculated note
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+
+            // Color each key ID based on whether it's the root or part of the chord
+            keyIds.forEach(keyId => {
+                if (interval === 0) {
+                    // Special color for the root note
+                    colorKey(keyId, '#DC387D');
+                } else {
+                    // Default color for the rest of the chord tones
+                    colorKey(keyId, '#42E2D9');
+                }
+            });
+        });
+    });
 }
+
+
+
+function colorProgression1456(rootNote, chromaticScale) {
+    // Chord tones intervals for a major chord (root, major third, perfect fifth)
+    const chordTones = [0, 4, 7];
+
+    // Find indices of the root note within the chromatic scale
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        // For each interval (including the root itself)
+        chordTones.forEach(interval => {
+            // Calculate the note index within the scale
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            // Fetch key IDs for the calculated note
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+
+            // Color each key ID based on whether it's the root or part of the chord
+            keyIds.forEach(keyId => {
+                if (interval === 0) {
+                    // Special color for the root note
+                    colorKey(keyId, '#DC387D');
+                } else {
+                    // Default color for the rest of the chord tones
+                    colorKey(keyId, '#42E2D9');
+                }
+            });
+        });
+    });
+}
+
+function handleProgressionBoxClick(boxId, rootNote, chromaticScale) {
+    clearCardTones(); // Clear all previous colors
+
+    // Exclude box4 logic if not in progression1456
+    if (boxId === 'box4' && currentProgression !== 'progression1456') {
+        return; // Exit if box4 is clicked but the current progression is not 1456
+    }
+
+    const boxToChordTones = {
+        'box1': [0, 4, 7],
+        'box2': [5, 9, 12],
+        'box3': [7, 11, 14],
+        'box4': currentProgression === 'progression1456' ? [9, 0, 4] : null
+    };
+
+    const specialColorNoteIndex = { 'box1': 0, 'box2': 5, 'box3': 7, 'box4': 9 }; // Index to color specifically
+
+    const chordTones = boxToChordTones[boxId];
+    if (!chordTones) return; // Exit if no mapping found for the box
+
+    let rootIndex = chromaticScale.indexOf(rootNote);
+    if (rootIndex === -1) return; // Exit if root note not found
+
+    chordTones.forEach(interval => {
+        let noteIndex = (rootIndex + interval) % chromaticScale.length;
+        let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+        keyIds.forEach(keyId => {
+            // Color the specific root note of each chord with #DC387D
+            if (interval === specialColorNoteIndex[boxId]) {
+                colorKey(keyId, '#DC387D');
+            } else {
+                colorKey(keyId, '#42E2D9'); // Use a distinct color for the other notes
+            }
+        });
+    });
+}
+
+
+
+function adjustJamCardMargin() {
+    const jamCardImage = document.getElementById('jamCardImage');
+    const isProgression1456 = jamCardSelect.value === 'progression1456';
+    jamCardImage.style.marginLeft = isProgression1456 ? '-3.8%' : '0';
+}
+
+
+
+
+
+
+
+
+
+const instrumentSelect = document.getElementById('instrumentSelect');
+
+instrumentSelect.addEventListener('change', function () {
+    const selectedInstrument = this.value;
+    loadAudioFiles(selectedInstrument); // Pass the selected instrument to the load function
+});
+
 
 
 
@@ -465,7 +687,10 @@ function playNote(noteName, keyId) {
 
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffers[noteName];
-    source.connect(audioContext.destination);
+    const gainNode = audioContext.createGain(); // Create a new GainNode for each note
+    gainNode.gain.value = 0.1; // Adjust if needed to prevent clipping
+    source.connect(gainNode);
+    gainNode.connect(audioContext.destination);
     source.start(0);
 
     // Visual feedback code remains unchanged
@@ -521,7 +746,7 @@ function initializeJamCardImageListeners() {
 
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Second DOMContentLoaded listener.");
-    var keys = document.querySelectorAll('.white-key, .black-key');
+    var keys = document.querySelectorAll('.white-key, .black-key-1, .black-key-2, .black-key-3, .black-key-4, .black-key-5');
     var rootSelect = document.getElementById('rootSelect');
     var jamCardSelect = document.getElementById('jamCardSelect');
     var jamCardLabel = document.querySelector('label[for="jamCardSelect"]');
@@ -537,7 +762,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const piano = document.querySelector('.piano'); // Get the parent element
     const showKeyLabelsCheckbox = document.getElementById('showKeyLabels');
     const keyLabels = document.querySelectorAll('.key-label');
-    var keys = document.querySelectorAll('.white-key, .black-key');
+    var keys = document.querySelectorAll('.white-key, .black-key-1, .black-key-2, .black-key-3, .black-key-4, .black-key-5');
 
     keys.forEach(function (key) {
         key.addEventListener('click', function () {
@@ -586,132 +811,246 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     rootSelect.addEventListener('change', function () {
+        console.log("Root select changed. New value:", this.value);
         const keys = document.querySelectorAll('.root-key');
         keys.forEach(function (key) {
             key.classList.remove('root-key');
         });
 
-        if (this.value !== 'none') {
-            const marginPercentage = noteToMarginMapping[this.value];
-            // Set the jamCardImage left position based on the selected root note's margin percentage
-            jamCardImage.style.left = `${marginPercentage}%`;
+        // Reference to the jam card image
+        const jamCardImage = document.getElementById('jamCardImage');
 
+        if (this.value !== 'none') {
+            // A root note is selected
+            const marginPercentage = noteToMarginMapping[this.value];
+            jamCardImage.style.left = `${marginPercentage}%`; // Adjust the jam card image position
 
             jamCardSelect.style.display = 'block';
             jamCardLabel.style.display = 'block';
             colorRootNotes(this.value);
-            console.log(marginPercentage)
+            console.log(marginPercentage);
 
-            switch (jamCardSelect.value) {
-                case 'majorPentatonic':
-                    colorPentatonicScale(this.value, chromaticScale);
-                    break;
-                case 'minorPentatonic':
-                    colorMinorPentatonicScale(this.value, chromaticScale);
-                    break;
-                case 'major':
-                    colorMajorScale(this.value, chromaticScale);
-                    break;
-                case 'harmonicMinor':
-                    colorHarmonicMinorScale(this.value, chromaticScale);
-                    break;
-                case 'blues':
-                    colorBluesScale(this.value, chromaticScale);
-                    break;
-                case 'chordsMajor':
-                    colorMajorChords(this.value, chromaticScale);
-                    break;
-                case 'chordsMinor':
-                    colorMinorChords(this.value, chromaticScale);
-                    break;
-                case 'chordsDominant7th':
-                    colorDominant7thChords(this.value, chromaticScale);
-                    break;
-                default:
-                    clearCardTones();
-                    break;
+            if (jamCardSelect.value === 'none') {
+                console.log("Jamcard set to none");
+                // No specific jam card is selected, display the rootOnly.jpg jam card
+                jamCardImage.src = 'jamCards/rootOnly.jpg';
+                jamCardImage.alt = 'Root Only Jam Card';
+                jamCardMessage.innerHTML = '';
+                jamCardImage.style.display = 'block';
+            } else {
+                console.log("Jamcard selected");
+                // A specific jam card is selected, apply coloring based on selection
+                switch (jamCardSelect.value) {
+                    case 'majorPentatonic':
+                        colorPentatonicScale(this.value, chromaticScale);
+                        break;
+                    case 'minorPentatonic':
+                        colorMinorPentatonicScale(this.value, chromaticScale);
+                        break;
+                    case 'major':
+                        colorMajorScale(this.value, chromaticScale);
+                        break;
+                    case 'harmonicMinor':
+                        colorHarmonicMinorScale(this.value, chromaticScale);
+                        break;
+                    case 'blues':
+                        colorBluesScale(this.value, chromaticScale);
+                        break;
+                    case 'chordsMajor':
+                        colorMajorChords(this.value, chromaticScale);
+                        break;
+                    case 'chordsMinor':
+                        colorMinorChords(this.value, chromaticScale);
+                        break;
+                    case 'chordsDominant7th':
+                        colorDominant7thChords(this.value, chromaticScale);
+                        break;
+                    case 'progression145':
+                        colorProgression145(this.value, chromaticScale);
+                        break;
+                    case 'progression1456':
+                        colorProgression1456(this.value, chromaticScale);
+                        break;
+                    default:
+                        // If for some reason the value doesn't match, clear tones and ensure proper handling
+                        clearCardTones();
+                        break;
+                }
             }
         } else {
+            // No root note is selected, show the default home.jpg jam card
             jamCardSelect.style.display = 'none';
-            jamCardLabel.style.display = 'none';
-            jamCardSelect.value = 'none';
+            jamCardLabel.style.display = 'block';
+            jamCardMessage.innerHTML = 'No Root Selected';
             clearCardTones();
+
+            // Set the jamCardImage source to the default home.jpg
+            jamCardImage.src = 'jamCards/home.jpg';
+            jamCardImage.alt = 'Home Jam Card';
+            jamCardImage.style.display = 'block'; // Make sure the image is visible
         }
+        // Additional check for special jam card margin adjustment
+        if (jamCardSelect.value === 'progression1456') {
+            jamCardImage.style.marginLeft = '-3.8%'; // Adjust margin for this special case
+        } else {
+            // Apply standard margin adjustment based on root note
+            const marginPercentage = noteToMarginMapping[this.value];
+            jamCardImage.style.left = `${marginPercentage}%`;
+        }
+        adjustJamCardMargin();
     });
 
-
+    // Initial call to ensure default behavior on page load
+    rootSelect.dispatchEvent(new Event('change'));
 
 
 
 
     jamCardSelect.addEventListener('change', function () {
         const rootNote = rootSelect.value;
+        currentProgression = this.value;
         clearCardTones();
+        // Check if the selected jam card is a progression
+        if (this.value.startsWith('progression')) {
+            // Display the progression boxes
+            document.querySelector('.progression-boxes').style.visibility = 'visible';
 
-        // Handle the coloring of keys based on the selected jam card
-        if (rootNote !== 'none') {
+            // Clear previous values
+            document.querySelectorAll('.progression-box').forEach(box => {
+                box.textContent = '';
+            });
+
+            // Define the chord mappings for each progression type
+            const progressionMapping = {
+                'progression145': ['I', 'IV', 'V'],
+                'progression1456': ['I', 'IV', 'V', 'vi']
+            };
+
+            // Get the chords for the selected progression
+            const chords = progressionMapping[this.value] || [];
+
+            // Update the content of each progression box with the corresponding Roman numeral
+            chords.forEach((chord, index) => {
+                const box = document.querySelector(`#box${index + 1}`);
+                box.textContent = chord;
+                console.log("chords have been set");
+            });
+
+        } else {
+            // Hide the progression boxes if the selection is not a progression
+            document.querySelector('.progression-boxes').style.visibility = 'hidden';
+        }
+
+        // If no root note is selected, default actions to show the home jam card
+        if (rootNote === 'none' || this.value === 'none') {
+            jamCardImage.src = 'jamCards/home.jpg';
+            jamCardImage.alt = 'Home Jam Card';
+            jamCardContainer.style.display = 'block'; // Ensure container is visible if previously hidden
+            labelShowJamCards.textContent = 'Hide Jam Cards'; // Update label to reflect action
+            showJamCardsCheckbox.checked = true; // Ensure the checkbox is checked
+        } else {
+            // Determine the correct jam card based on selection
+            let jamCardFilename;
             switch (this.value) {
                 case 'majorPentatonic':
                     colorPentatonicScale(rootNote, chromaticScale);
+                    jamCardFilename = 'majorPentatonic.jpg';
                     break;
                 case 'minorPentatonic':
                     colorMinorPentatonicScale(rootNote, chromaticScale);
+                    jamCardFilename = 'minorPentatonic.jpg';
                     break;
                 case 'major':
                     colorMajorScale(rootNote, chromaticScale);
+                    jamCardFilename = 'major.jpg';
                     break;
                 case 'harmonicMinor':
                     colorHarmonicMinorScale(rootNote, chromaticScale);
+                    jamCardFilename = 'harmonicMinor.jpg';
                     break;
                 case 'blues':
                     colorBluesScale(rootNote, chromaticScale);
+                    jamCardFilename = 'blues.jpg';
                     break;
                 case 'chordsMajor':
                     colorMajorChords(rootNote, chromaticScale);
+                    jamCardFilename = 'chordsMajor.jpg';
                     break;
                 case 'chordsMinor':
                     colorMinorChords(rootNote, chromaticScale);
+                    jamCardFilename = 'chordsMinor.jpg';
                     break;
                 case 'chordsDominant7th':
                     colorDominant7thChords(rootNote, chromaticScale);
+                    jamCardFilename = 'chordsDominant7th.jpg';
+                    break;
+                case 'progression145':
+                    colorProgression145(rootNote, chromaticScale);
+                    jamCardFilename = 'progression145.jpg';
+                    break;
+                case 'progression1456':
+                    colorProgression1456(rootNote, chromaticScale);
+                    jamCardFilename = 'progression1456.jpg';
                     break;
                 default:
                     clearCardTones();
-            };
-            if (rootNote !== 'none') {
-                adjustJamCardImageMargin(rootNote);
+                    jamCardFilename = 'rootOnly.jpg'; // Use a default image if selection doesn't match
+                    break;
             }
-        }
 
-        // Update jam card container visibility and label text based on selection
-        if (this.value !== 'none') {
-            jamCardImage.src = `jamCards/${this.value}.jpg`; // Adjust path and extension as needed
-            jamCardImage.alt = `${this.value} Jam Card`;
-
-            // Default to showing the jam cards when a selection is made
-            jamCardContainer.style.display = 'block';
+            // Update jam card image source and alternative text
+            jamCardImage.src = `jamCards/${jamCardFilename}`;
+            jamCardImage.alt = `${this.value.replace(/([A-Z])/g, ' $1').trim()} Jam Card`;
+            jamCardContainer.style.display = 'block'; // Show the jam card container
+            labelShowJamCards.textContent = 'Hide Jam Cards'; // Update label text to indicate action
             showJamCardsCheckbox.checked = true; // Ensure the checkbox is checked
-            labelShowJamCards.textContent = 'Hide Jam Cards'; // Reflect that jam cards can now be hidden
-        } else {
-            // No jam card is selected
-            jamCardContainer.style.display = 'none';
-            showJamCardsCheckbox.checked = false; // Ensure checkbox is not checked
-            labelShowJamCards.textContent = 'No Jam Cards to Show'; // Reflect absence of a selection
         }
+        // Special case for progression1456.jpg
+        if (this.value === 'progression1456') {
+            // Adjust the margin specifically for progression1456.jpg
+            jamCardImage.style.marginLeft = '-3.8%';
+        } else {
+            // Reset to default or adjust based on root note if necessary
+            const marginPercentage = noteToMarginMapping[rootNote] || '0'; // Fallback to '0' if not found
+            jamCardImage.style.left = `${marginPercentage}%`;
+        }
+        adjustJamCardMargin();
     });
 
 
+    document.getElementById('jamCardSelect').addEventListener('change', function () {
+        const isProgression = this.value.startsWith('progression');
+        const progressionBoxes = document.querySelector('.progression-boxes');
+        const jamCardImage = document.getElementById('jamCardImage'); // Ensure you have this element correctly referenced
 
+        if (isProgression) {
+            progressionBoxes.style.visibility = 'visible';
+            progressionBoxes.style.opacity = 1;
+        } else {
+            progressionBoxes.style.visibility = 'hidden';
+            progressionBoxes.style.opacity = 0;
+        }
 
+        // Adjust margin for the jamCardImage based on specific progression selection
+        if (this.value === 'progression1456') {
+            jamCardImage.style.marginLeft = '-3.8%';
+        } else {
+            jamCardImage.style.marginLeft = '0'; // Reset to default if not progression1456
+        }
+    });
 
+    // Initially set up the click listeners once outside the 'change' event listener
+    document.querySelectorAll('.progression-box').forEach(box => {
+        box.addEventListener('click', handleBoxClick);
+    });
 
-
-
-
-
-
-
-
+    function handleBoxClick() {
+        const rootSelectElement = document.getElementById('rootSelect');
+        const currentRootNote = rootSelectElement.value;
+        // Ensure clearCardTones is called to reset the key colors
+        clearCardTones();
+        handleProgressionBoxClick(this.id, currentRootNote, chromaticScale); // 'this' refers to the clicked box
+    }
 
 
 
@@ -777,9 +1116,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+
+
     // Toggle display of note names and update label text
     showNoteNamesCheckbox.addEventListener('change', function () {
-        document.querySelectorAll('.note-name-white, .note-name-black').forEach(noteName => {
+        document.querySelectorAll('.note-name-white, .note-name-black-1, .note-name-black-2, .note-name-black-3').forEach(noteName => {
             noteName.style.display = this.checked ? '' : 'none';
         });
         document.querySelector('#labelShowNoteNames span').textContent = this.checked ? 'Hide Note Names' : 'Show Note Names';
@@ -787,35 +1128,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Toggle display of jam cards and update label text
     showJamCardsCheckbox.addEventListener('change', function () {
-        // Determine the state based on jam card selection and checkbox checked state
-        if (jamCardSelect.value === 'none') {
-            // No jam card is selected
-            jamCardContainer.style.display = 'none'; // Ensure container is hidden
-            labelShowJamCards.textContent = 'No Jam Cards to Show'; // Reflect no selection
-            showJamCardsCheckbox.checked = false; // Uncheck the checkbox as there's nothing to show
-        } else if (this.checked) {
-            // A jam card is selected, and the checkbox is checked to show it
-            if (jamCardImage.getAttribute('src') !== '') {
-                jamCardContainer.style.display = 'block'; // Only show if the src is not empty
-                labelShowJamCards.textContent = 'Hide Jam Cards'; // Indicate that the jam cards can be hidden
+        // Assuming 'home.jpg' is the default view when no root or jam card is selected
+        // and 'rootOnly.jpg' is shown when a root is selected but no specific jam card is chosen.
+        const rootNote = rootSelect.value;
+        const jamCardSelection = jamCardSelect.value;
+
+        // Check if the checkbox is checked
+        if (this.checked) {
+            // Show the jam card container
+            jamCardContainer.style.display = 'block';
+
+            if (rootNote === 'none') {
+                // No root note selected, show 'home' jam card
+                jamCardImage.src = 'jamCards/home.jpg';
+                jamCardImage.alt = 'Home Jam Card';
+                labelShowJamCards.textContent = 'Hide Jam Cards';
+            } else if (jamCardSelection === 'none') {
+                // Root note selected but no specific jam card chosen, show 'rootOnly' jam card
+                jamCardImage.src = 'jamCards/rootOnly.jpg';
+                jamCardImage.alt = 'Root Only Jam Card';
+                labelShowJamCards.textContent = 'Hide Jam Cards';
             } else {
-                this.checked = false; // Prevent checking if the image src is empty
-                labelShowJamCards.textContent = 'No Jam Cards to Show'; // Reflect that there's no image
+                // A specific jam card is selected, no change needed here as the src should already be set
+                labelShowJamCards.textContent = 'Hide Jam Cards';
             }
         } else {
-            // The checkbox is unchecked but a jam card is selected
-            jamCardContainer.style.display = 'none'; // Hide the container
-            labelShowJamCards.textContent = 'Show Jam Cards'; // Offer to show the jam card
+            // The checkbox is unchecked
+            jamCardContainer.style.display = 'none';
+            labelShowJamCards.textContent = 'Show Jam Cards';
         }
     });
 
 
-
-    // Toggle display of controls and update label text
-    showControlsCheckbox.addEventListener('change', function () {
-        document.querySelector('.controls').style.display = this.checked ? '' : 'none';
-        document.querySelector('#labelShowControls span').textContent = this.checked ? 'Hide Controls' : 'Show Controls';
-    });
 
 
 
@@ -823,11 +1167,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // Note: This step may be optional based on your initial CSS. It ensures the JavaScript respects the initial checkbox states.
     showNoteNamesCheckbox.dispatchEvent(new Event('change'));
     showJamCardsCheckbox.dispatchEvent(new Event('change'));
-    showControlsCheckbox.dispatchEvent(new Event('change'));
 
     // Initially hide the jamCardSelect and label
     jamCardSelect.style.display = 'none';
-    jamCardLabel.style.display = 'none';
+    jamCardLabel.style.display = 'No Root Selected';
     jamCardContainer.style.display = 'none'; // Make the Jam Card container visible
 });
 
@@ -907,6 +1250,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+document.addEventListener('keydown', function (event) {
+    if (event.repeat) return; // Prevent multiple triggers for long key presses
+    const note = keyboardToNoteMapping[event.code];
+    if (note) {
+        // Find the keyId corresponding to the note
+        const keyId = Object.keys(noteMapping).find(key => noteMapping[key] === note);
+        if (keyId) {
+            playNote(note, keyId);
+            // Update the note display
+            const noteDisplay = document.getElementById('noteDisplay');
+            noteDisplay.textContent = note; // Or use noteName for the formatted name
+        }
+    }
+});
 
 
 
@@ -941,27 +1298,24 @@ function checkOrientation() {
         orientationAlert.style.display = 'block';
         h1.style.display = 'none';
         piano.style.display = 'none';
-        controls.style.display = 'none'; // Hide controls
-        options.style.display = 'none'; // Hide options
-        document.body.style.overflow = 'hidden'; // Disable scrolling
-        jamCardContainer.style.display = 'none'; // Ensure jam card container is hidden
+        mainContainer.style.display = 'none';
+        overlay.style.display = 'none';
+        document.body.style.overflow = 'hidden';
+        jamCardContainer.style.display = 'none';
     } else {
         // In Landscape Mode
         orientationAlert.style.display = 'none';
         h1.style.display = 'block';
         piano.style.display = 'block';
-        controls.style.display = 'grid'; // Show controls
-        options.style.display = 'flex'; // Show options, adjust the display value as needed
-        document.body.style.overflow = 'auto'; // Enable scrolling
-
-        // Only show the jam card container if a root note and jam card are selected
-        if (isRootSelected && isJamCardSelected) {
-            jamCardContainer.style.display = 'block';
-        } else {
-            jamCardContainer.style.display = 'none';
-        }
+        mainContainer.style.display = 'grid';
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'auto';
+        jamCardContainer.style.display = 'relative';
     }
 }
+
+
+
 
 // Ensure the checkOrientation function is called both on page load and on window resize.
 window.addEventListener('load', checkOrientation);
