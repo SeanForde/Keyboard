@@ -123,11 +123,9 @@ body {
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    background-color: black;
-    /* Cool Gray 3 */
+    background-color: #101D32;
     color: #101D32;
-    /* Dark Stone */
-    font-family: Arial, sans-serif;
+    font-family: 'Rubik', sans-serif;
 }
 
 .controls {
@@ -153,7 +151,6 @@ body {
 .roots,
 .jam-cards,
 .jam-card-message {
-    width: 100%;
     margin-bottom: 5px;
 }
 
@@ -219,7 +216,6 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
-    max-width: 50px;
     height: 10px;
     /* Adjust size as needed */
     margin: 1.5%;
@@ -262,8 +258,8 @@ body {
 
 /* Basic styling for dropdown selects */
 #instrumentSelect,
-#jamAlongSelect {
-    padding: 5px;
+#jamAlongSelect, select {
+    padding: 5px 18px 5px 15px;
     /* Adequate padding for clickability */
     margin: 5px;
     /* Consistent margin */
@@ -277,7 +273,7 @@ body {
     /* Legible text */
     color: #333;
     /* Dark text for readability */
-    width: calc(100% - 20px);
+    width: calc(100% - 10px);
     /* Full width minus margin */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     /* Slight shadow for depth */
@@ -289,19 +285,20 @@ body {
 
 /* Adding a custom dropdown arrow */
 #instrumentSelect,
-#jamAlongSelect {
+#jamAlongSelect, select {
     background-image: linear-gradient(45deg, transparent 50%, gray 50%),
         linear-gradient(135deg, gray 50%, transparent 50%);
-    background-position: right 15px top 50%, right 10px top 50%;
+    background-position: right 10px top 50%, right 5px top 50%;
     /* Adjust arrow position */
     background-size: 5px 5px, 5px 5px;
     /* Arrow size */
     background-repeat: no-repeat;
+    text-align:center;
 }
 
 /* Focus state for accessibility */
 #instrumentSelect:focus,
-#jamAlongSelect:focus {
+#jamAlongSelect:focus, select:focus {
     border-color: #80bdff;
     /* Highlight color */
     outline: 0;
@@ -334,31 +331,25 @@ body {
     /* Subtle shadow for depth */
 }
 
-
 #playStopButton {
-    margin-top: 0px;
-    padding: 10px 10px;
-    /* Increase padding for a larger button */
-    background-color: #DC387D;
-    /* Green background color */
-    color: white;
-    /* White text color */
-    align-items: center;
-    border: none;
-    /* Remove border */
-    border-radius: 5px;
-    /* Add rounded corners */
-    font-size: 1.2em;
-    /* Increase font size */
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    /* Add a smooth hover effect */
+  text-transform: uppercase;
+background-color: #dc387d;
+color: white;
+padding: .5em 2em;
+border: none;
+border-radius: 50px;
+cursor: pointer;
+box-sizing: border-box;
+text-align: center;
+font-weight: bold;
+margin-top: 3px;
 }
 
 #playStopButton:hover {
-    background-color: #FFA0C6;
-    /* Darker green on hover */
+    background-color: #BAFEFF;
+    color: #101D32;
 }
+
 
 .main-container {
     display: grid;
@@ -370,7 +361,7 @@ body {
 
 
 .side-panel {
-    padding: 10px;
+    padding: 0.5em;
     background-color: #727F95;
     /* Consistent with piano background */
     color: white;
@@ -379,6 +370,7 @@ body {
     border: 3px solid #42E2D9;
     border-radius: 10px;
     /* Accent border color */
+    text-align:center;
 }
 
 .keyboard-panel {
@@ -520,6 +512,10 @@ body {
     /* Example to remove shadow to mimic pressing */
 }
 
+.black-key.key-pressed {
+    box-shadow: inset 0px 0px 2px 1px gray;
+}
+
 .note-name-white {
     position: absolute;
     bottom: 1%;
@@ -612,34 +608,20 @@ body {
 
 
 #noteDisplay {
-    align-items: center;
-    background: #0c9a98;
-    /* Typically LED backgrounds are black */
-    border-radius: 5px;
-    /* Optional: round the corners for a softer look */
-    border: 1px solid #333;
-    /* Optional: add a border to simulate the edge of the LED screen */
-    box-shadow: inset 0 0 10px #000;
-    /* Inner shadow to give depth */
-    color: #4B0082;
-    display: inline-block;
-    /* Allow the container size to fit the content */
-    padding: 10px;
-    font-family: 'Lucida Console', 'Courier New', monospace;
-    /* Calculator-like fonts */
-    font-size: 18px;
-    font-weight: bold;
-    height: auto;
-    overflow: hidden;
-    text-shadow:
-        0 0 1px #4B0082,
-        /* Glowing effect */
-        0 0 1px #4B0082,
-        0 0 1px #4B0082;
-    text-overflow: ellipsis;
-    text-align: center;
-    white-space: nowrap;
-    width: 100px;
+  lign-items: center;
+  background: #BAFEFF;
+  border-radius: 2px;
+  color: #101D32;
+  display: inline-block;
+  padding: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  height: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  white-space: nowrap;
+  width: 100px;
 }
 
 
@@ -647,55 +629,56 @@ body {
 
 /* Style adjustments for checkbox labels */
 .toggle-label {
-    display: inline-block;
-    margin: 5%;
-    background-color: #42E2D9;
-    /* Bootstrap primary color for demonstration */
-    color: #8C52DB;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out, transform 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    user-select: none;
-    /* Prevent text selection */
+  display: flex;
+  background-color: #101D32;
+  color: white;
+  padding: .5em .5em .5em 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, transform 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  user-select: none;
+  position: relative;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 50px;
+  box-sizing: border-box;
+  font-size: 0.9em;
+}
+
+.toggle-label:hover {
+      background-color: #182D4E;
 }
 
 /* Hides the actual checkbox input */
 .toggle-label input[type="checkbox"] {
-    display: none;
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
 }
 
-/* Styling for when a checkbox is checked */
-.toggle-label input[type="checkbox"]:checked+span {
-    /* Bootstrap success color for demonstration */
-    color: #8C52DB;
+span.toggle-checked {
+    height: 1.5em;
+    width: 1.5em;
+    background-color: #D2D7E9;
+    border-radius: 100%;
+    border: 5px solid #D2D7E9;
+    box-sizing: border-box;
 }
 
-/* Optional: Styling for hover state */
-.toggle-label:hover {
-    background-color: #ffffff;
-    /* Darker shade for hover state */
+.toggle-label input:checked ~ .toggle-checked {
+  background-color: #DC387D;
 }
+
 
 /* Optional: Styling for active/clicked state */
 .toggle-label:active {
     transform: translateY(2px);
     /* Mimic button press down effect */
 }
-
-
-
-
-
-
-
-
-
 
 
 .keyboard-labels {
@@ -739,11 +722,12 @@ body {
 }
 
 select {
-    padding: 5px;
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: white;
     cursor: pointer;
+    display:block;
+    margin:auto;
 }
 
 .progression-boxes {
@@ -775,26 +759,23 @@ label {
 
 /* Styling for the 'Copy my settings' button */
 #copySettingsButton {
-    background-color: #DC387D;
-    /* Green background */
-    color: white;
-    /* White text */
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    /* Ensure it's visibly separate from the options above */
-    width: 100%;
-    /* Full width */
-    box-sizing: border-box;
-    /* Include padding and border in the element's total width and height */
-    text-align: center;
+  text-transform: uppercase;
+background-color: #dc387d;
+color: white;
+padding: 10px;
+border: none;
+border-radius: 50px;
+cursor: pointer;
+margin-top: 10px;
+width: 100%;
+box-sizing: border-box;
+text-align: center;
+font-weight: bold;
 }
 
 #copySettingsButton:hover {
-    background-color: #45a049;
-    /* Darker green on hover */
+    background-color: #BAFEFF;
+    color: #101D32;
 }
 
 .popup-overlay {

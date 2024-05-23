@@ -233,11 +233,31 @@ function setDropdownsFromParameters() {
     }
 }
 
-
+// add class for key styling
 function handleKeyPress(noteNumber) {
     const noteName = noteMapping[noteNumber];
     document.getElementById('noteDisplay').textContent = `${noteName}`;
-}
+        }
+
+        function handleKeyClick(event) {
+            // Deselect the last selected key
+            const currentlySelectedElem = document.querySelector("div.key-pressed");
+            if (currentlySelectedElem) {
+                currentlySelectedElem.classList.remove("key-pressed");
+            }
+
+            // Indicate the current selection
+            event.target.classList.add("key-pressed");
+
+            // Update the display with the clicked key's note
+            const noteNumber = parseInt(event.target.dataset.noteNumber, 10);
+            handleKeyPress(noteNumber);
+        }
+
+        const keys = document.querySelectorAll('.white-key, .black-key-1, .black-key-2, .black-key-3, .black-key-4, .black-key-5');
+keys.forEach(key => key.addEventListener('click', handleKeyClick));
+
+
 
 
 
@@ -591,10 +611,6 @@ function adjustJamCardMargin() {
     const isProgression1456 = jamCardSelect.value === 'progression1456';
     jamCardImage.style.marginLeft = isProgression1456 ? '-3.8%' : '0';
 }
-
-
-
-
 
 
 
@@ -1053,6 +1069,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
+// Event listener for the checkbox
+showKeyLabelsCheckbox.addEventListener('change', toggleKeyLabelsVisibility);
+
+// Call the function on page load to apply the initial state
+toggleKeyLabelsVisibility();
+
+
 
 
     // Function to toggle visibility
@@ -1061,8 +1084,7 @@ document.addEventListener("DOMContentLoaded", function () {
         keyLabels.forEach(label => {
             label.style.display = isChecked ? '' : 'none';
         });
-        // Update label text based on the checkbox state
-        document.querySelector('#labelShowKeyLabels span').textContent = isChecked ? 'Hide Computer Keys' : 'Show Computer Keys';
+        // Update label text based on the checkbox state: document.querySelector('#labelShowKeyLabels span').textContent = isChecked ? 'Hide Computer Keys' : 'Show Computer Keys';
     }
 
     // Event listener for the checkbox
@@ -1123,7 +1145,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll('.note-name-white, .note-name-black-1, .note-name-black-2, .note-name-black-3').forEach(noteName => {
             noteName.style.display = this.checked ? '' : 'none';
         });
-        document.querySelector('#labelShowNoteNames span').textContent = this.checked ? 'Hide Note Names' : 'Show Note Names';
+        // Update label text based on the checkbox state: document.querySelector('#labelShowNoteNames span').textContent = this.checked ? 'Hide Note Names' : 'Show Note Names';
     });
 
     // Toggle display of jam cards and update label text
@@ -1142,20 +1164,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 // No root note selected, show 'home' jam card
                 jamCardImage.src = 'jamCards/home.jpg';
                 jamCardImage.alt = 'Home Jam Card';
-                labelShowJamCards.textContent = 'Hide Jam Cards';
+                // Update label text based on the checkbox state: labelShowJamCards.textContent = 'Hide Jam Cards';
             } else if (jamCardSelection === 'none') {
                 // Root note selected but no specific jam card chosen, show 'rootOnly' jam card
                 jamCardImage.src = 'jamCards/rootOnly.jpg';
                 jamCardImage.alt = 'Root Only Jam Card';
-                labelShowJamCards.textContent = 'Hide Jam Cards';
+                // Update label text based on the checkbox state: labelShowJamCards.textContent = 'Hide Jam Cards';
             } else {
                 // A specific jam card is selected, no change needed here as the src should already be set
-                labelShowJamCards.textContent = 'Hide Jam Cards';
+                // Update label text based on the checkbox state: labelShowJamCards.textContent = 'Hide Jam Cards';
             }
         } else {
             // The checkbox is unchecked
             jamCardContainer.style.display = 'none';
-            labelShowJamCards.textContent = 'Show Jam Cards';
+            // Update label text based on the checkbox state: labelShowJamCards.textContent = 'Show Jam Cards';
         }
     });
 
@@ -1310,7 +1332,7 @@ function checkOrientation() {
         mainContainer.style.display = 'grid';
         overlay.style.display = 'flex';
         document.body.style.overflow = 'auto';
-        jamCardContainer.style.display = 'relative';
+        jamCardContainer.style.display = 'block';
     }
 }
 

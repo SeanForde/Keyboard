@@ -4,6 +4,12 @@
 <head>
     <title>Music Will Interactive Piano</title>
     <link rel="stylesheet" type="text/css" href="Keyboard15.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -29,7 +35,8 @@
         <div class="side-panel">
             <!-- Buttons, dropdowns, and other controls here -->
             <div class="jam-card-controls">
-                <div class="title">Jam Cards</div>
+                <h3 class="title">Jam Cards</h3>
+                <center><p>Select a Jam Card from the dropdown below.</p></center>
                 <label class="roots" for="rootSelect">Root:</label>
                 <select id="rootSelect" class="roots">
                     <option value="none" selected>None</option>
@@ -60,7 +67,7 @@
                     <option value="progression145">Progression: 1-4-5</option>
                     <option value="progression1456">Progression: 1-4-5-6</option>
                 </select>
-                <div id="jamCardMessage" class="jam-card-message"></div>
+                <i><p id="jamCardMessage" class="jam-card-message"></p></i>
 
                 <div class="progression-boxes">
                     <button class="progression-box" id="box1">Progression 1</button>
@@ -69,26 +76,29 @@
                     <button class="progression-box" id="box4">Progression 4</button>
                 </div>
 
-
+                <h3 class="title">Display Settings</h3>
                 <label class="toggle-label" for="showNoteNames" id="labelShowNoteNames">
                     <input type="checkbox" id="showNoteNames" checked>
-                    <span>Note Names</span></label>
+                    <span>Note Names</span>
+                  <span class="toggle-checked"></span></label>
                 <label class="toggle-label" for="showJamCards" id="labelShowJamCards">
                     <input type="checkbox" id="showJamCards" checked>
-                    <span>Jam Cards</span></label>
+                    <span>Jam Cards</span>
+                  <span class="toggle-checked"></span></label>
                 <label class="toggle-label" for="showKeyLabels" id="labelShowKeyLabels">
                     <input type="checkbox" id="showKeyLabels">
                     <span>Computer Keys</span>
+                    <span class="toggle-checked"></span>
                 </label>
 
 
-                <button id="copySettingsButton">Copy my settings</button>
+                <button id="copySettingsButton">Copy Settings</button>
             </div>
         </div>
         <div class="keyboard-panel">
             <div class="piano">
                 <div class="options">
-                    <div id="noteDisplay">None</div>
+                    <div id="noteDisplay">--</div>
                     <div class="instruments">
                         <select id="instrumentSelect">
                             <option value="Piano">Piano</option>
