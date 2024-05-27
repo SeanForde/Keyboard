@@ -237,24 +237,24 @@ function setDropdownsFromParameters() {
 function handleKeyPress(noteNumber) {
     const noteName = noteMapping[noteNumber];
     document.getElementById('noteDisplay').textContent = `${noteName}`;
-        }
+}
 
-        function handleKeyClick(event) {
-            // Deselect the last selected key
-            const currentlySelectedElem = document.querySelector("div.key-pressed");
-            if (currentlySelectedElem) {
-                currentlySelectedElem.classList.remove("key-pressed");
-            }
+function handleKeyClick(event) {
+    // Deselect the last selected key
+    const currentlySelectedElem = document.querySelector("div.key-pressed");
+    if (currentlySelectedElem) {
+        currentlySelectedElem.classList.remove("key-pressed");
+    }
 
-            // Indicate the current selection
-            event.target.classList.add("key-pressed");
+    // Indicate the current selection
+    event.target.classList.add("key-pressed");
 
-            // Update the display with the clicked key's note
-            const noteNumber = parseInt(event.target.dataset.noteNumber, 10);
-            handleKeyPress(noteNumber);
-        }
+    // Update the display with the clicked key's note
+    const noteNumber = parseInt(event.target.dataset.noteNumber, 10);
+    handleKeyPress(noteNumber);
+}
 
-        const keys = document.querySelectorAll('.white-key, .black-key-1, .black-key-2, .black-key-3, .black-key-4, .black-key-5');
+const keys = document.querySelectorAll('.white-key, .black-key-1, .black-key-2, .black-key-3, .black-key-4, .black-key-5');
 keys.forEach(key => key.addEventListener('click', handleKeyClick));
 
 
@@ -926,6 +926,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const rootNote = rootSelect.value;
         currentProgression = this.value;
         clearCardTones();
+
+        // Always color the root note first
+        if (rootNote !== 'none') {
+            colorRootNotes(rootNote);
+        }
+
         // Check if the selected jam card is a progression
         if (this.value.startsWith('progression')) {
             // Display the progression boxes
@@ -1069,11 +1075,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-// Event listener for the checkbox
-showKeyLabelsCheckbox.addEventListener('change', toggleKeyLabelsVisibility);
+    // Event listener for the checkbox
+    showKeyLabelsCheckbox.addEventListener('change', toggleKeyLabelsVisibility);
 
-// Call the function on page load to apply the initial state
-toggleKeyLabelsVisibility();
+    // Call the function on page load to apply the initial state
+    toggleKeyLabelsVisibility();
 
 
 
