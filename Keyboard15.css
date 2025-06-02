@@ -1,878 +1,1381 @@
-/* Prevent double-tap zoom */
-html,
-body {
-    touch-action: manipulation;
-    font-size: 16px;
-    overflow: scroll;
-    /* Prevent scrolling */
-}
+const noteMapping = {
+    1: "C3", 2: "C#3 / Db3", 3: "D3", 4: "D#3 / Eb3", 5: "E3",
+    6: "F3", 7: "F#3 / Gb3", 8: "G3", 9: "G#3 / Ab3", 10: "A3",
+    11: "A#3 / Bb3", 12: "B3", 13: "C4", 14: "C#4 / Db4", 15: "D4",
+    16: "D#4 / Eb4", 17: "E4", 18: "F4", 19: "F#4 / Gb4", 20: "G4",
+    21: "G#4 / Ab4", 22: "A4", 23: "A#4 / Bb4", 24: "B4", 25: "C5"
+};
+
+const noteToIdMapping = {
+    "C": [1, 13, 25],
+    "C# / Db": [2, 14],
+    "D": [3, 15],
+    "D# / Eb": [4, 16],
+    "E": [5, 17],
+    "F": [6, 18],
+    "F# / Gb": [7, 19],
+    "G": [8, 20],
+    "G# / Ab": [9, 21],
+    "A": [10, 22],
+    "A# / Bb": [11, 23],
+    "B": [12, 24],
+};
+
+const chromaticScale = ["C", "C# / Db", "D", "D# / Eb", "E", "F", "F# / Gb", "G", "G# / Ab", "A", "A# / Bb", "B"];
+
+const noteToMarginMapping = {
+    "C": "0",
+    "C# / Db": "3.8",
+    "D": "7.75",
+    "D# / Eb": "11.65",
+    "E": "15.55",
+    "F": "19.5",
+    "F# / Gb": "23.4",
+    "G": "27.3",
+    "G# / Ab": "31.2",
+    "A": "35.2",
+    "A# / Bb": "39",
+    "B": "43"
+};
+
+// Reverse mapping for margin to note
+const marginToNoteMapping = Object.fromEntries(Object.entries(noteToMarginMapping).map(([note, margin]) => [margin, note]));
 
 
-.controls label,
-.controls button,
-.controls select {
-    font-size: 1em;
-    /* 1em will equal the font-size of the body */
-}
+const keyboardToNoteMapping = {
+    //Lower Octave
+    'KeyZ': 'C3',
+    'KeyS': 'C#3 / Db3',
+    'KeyX': 'D3',
+    'KeyD': 'D#3 / Eb3',
+    'KeyC': 'E3',
+    'KeyV': 'F3',
+    'KeyG': 'F#3 / Gb3',
+    'KeyB': 'G3',
+    'KeyH': 'G#3 / Ab3',
+    'KeyN': 'A3',
+    'KeyJ': 'A#3 / Bb3',
+    'KeyM': 'B3',
+    'Comma': 'C4',
+    //Higher Octave
+    'KeyW': 'C4',
+    'Digit3': 'C#4 / Db4',
+    'KeyE': 'D4',
+    'Digit4': 'D#4 / Eb4',
+    'KeyR': 'E4',
+    'KeyT': 'F4',
+    'Digit6': 'F#4 / Gb4',
+    'KeyY': 'G4',
+    'Digit7': 'G#4 / Ab4',
+    'KeyU': 'A4',
+    'Digit8': 'A#4 / Bb4',
+    'KeyI': 'B4',
+    'KeyO': 'C5',
+    // Add mappings for the rest of your keys
+};
 
-header {
-    text-align: center;
-    margin-top: 10px;
-    font-size: 1.5em;
-    color: #FFFFFF;
-    /* Adjust color to fit your design */
-}
+let jamAlongAudio = null;
 
-.overlay {
-    position: fixed;
-    /* or 'absolute', depending on your layout needs */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    /* Semi-transparent black */
-    color: white;
-    z-index: 10;
-    /* Ensure it's above other content */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-.overlay > p {
-    text-align: center;
-    width: 80%;
-}
+// Master Gain Node to control overall volume
+const masterGainNode = audioContext.createGain();
+masterGainNode.gain.value = 0.1; // Adjust as needed
+masterGainNode.connect(audioContext.destination);
 
-#startButton {
-    background: linear-gradient(135deg, #0072ff, #00c6ff);
-    border: none;
-    color: white;
-    padding: 15px 30px;
-    font-size: 20px;
-    font-weight: bold;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    outline: none;
-    box-shadow: 0 4px 15px rgba(0, 118, 255, 0.4);
-}
+// Gain Node for piano notes
+const pianoGainNode = audioContext.createGain();
+pianoGainNode.gain.value = 1.0; // Adjust as needed
+pianoGainNode.connect(masterGainNode);
 
-#startButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 118, 255, 0.5);
-}
+// Gain Node for jam-along tracks
+const jamAlongGainNode = audioContext.createGain();
+jamAlongGainNode.gain.value = .5; // Adjust as needed
+jamAlongGainNode.connect(masterGainNode);
 
-#startButton:active {
-    transform: translateY(1px);
-    box-shadow: 0 3px 10px rgba(0, 118, 255, 0.5);
-}
+let audioBuffers = {}; // Initialize the audio buffers
+
+let currentProgression = '';
 
 
 
-h1 {
-    margin: 0;
-    padding: 10px;
-    /* Add any additional styling you want for the header text */
-}
 
+// Drag-related variables
+let isDragging = false;
+let startX;
+let startLeftOffset;
 
-/* Hide the piano and show the alert in portrait mode */
-@media screen and (orientation: portrait) {
+// New DOMContentLoaded event listener
+document.addEventListener("DOMContentLoaded", async function () {
+    console.log("First DOMContentLoaded listener.");
+    const noteIds = Object.keys(noteMapping);
+    const promises = noteIds.map(noteId => {
+        const noteName = noteMapping[noteId];
+        const url = `keyboardNotes/Piano/${noteId}.mp3`;
+        return fetch(url)
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+            .then(audioBuffer => {
+                audioBuffers[noteName] = audioBuffer;
+            });
+        checkOrientation();
+    });
 
-    .main-container,
-    .controls,
-    .jamCardContainer {
-        border: 0px solid #42E2D9;
-        border-radius: 0px;
+    await Promise.all(promises).then(() => {
+        console.log('All audio files loaded into buffers');
+    }).catch(error => console.error('Error loading audio files into buffers:', error));
+    setDropdownsFromParameters();
+    setVisibilityControlsFromParameters();
 
-        position: relative;
-        /* Ensure it's positioned */
-        overflow: visible;
-        /* Allow contents to extend visually */
-        /* Define a width if not already set, or ensure it's controlled by parent elements */
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Ensure all elements are loaded before attaching listeners
+    const copySettingsButton = document.getElementById('copySettingsButton');
+    const popupOverlay = document.getElementById('popupOverlay');
+    const closePopupButton = document.getElementById('closePopup');
+    const qrCodeContainer = document.getElementById('qrCodeContainer');
+
+    // Event listener for "Copy my settings" button
+    copySettingsButton.addEventListener('click', function () {
+        console.log('Pop-up should be displayed')
+        // Construct the settings URL dynamically
+        const settingsUrl = constructSettingsUrl();
+        // Generate QR code URL
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(settingsUrl)}`;
+        // Set QR code URL to img src within the container
+        qrCodeContainer.innerHTML = `<img src="${qrCodeUrl}" alt="Settings QR Code">`;
+        // Show the popup
+        popupOverlay.style.display = 'flex';
+    });
+
+    // Close popup functionality
+    closePopupButton.addEventListener('click', function () {
+        popupOverlay.style.display = 'none';
+    });
+
+    // Function to construct settings URL dynamically based on current settings
+    function constructSettingsUrl() {
+        const baseUrl = window.location.href.split('?')[0];
+        const root = document.getElementById('rootSelect').value;
+        const jamcard = document.getElementById('jamCardSelect').value;
+        const showNoteNames = document.getElementById('showNoteNames').checked;
+        const showJamCards = document.getElementById('showJamCards').checked;
+        const showKeyLabels = document.getElementById('showKeyLabels').checked;
+        return `${baseUrl}?root=${root}&jamcard=${jamcard}&showNoteNames=${showNoteNames}&showJamCards=${showJamCards}&showKeyLabels=${showKeyLabels}`;
     }
+});
 
 
-    #orientationAlert {
-        display: flex;
-        text-align: center;
-        justify-content: center;
-        font-size: 4em;
-        color: #42E2D9;
+// Define loadAudioFiles function here
+async function loadAudioFiles(selectedInstrument) {
+    const noteIds = Object.keys(noteMapping);
+    const promises = noteIds.map(noteId => {
+        const noteName = noteMapping[noteId];
+        // Update the URL path to include the selectedInstrument folder name
+        const url = `keyboardNotes/${selectedInstrument}/${noteId}.mp3`;
+        return fetch(url)
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+            .then(audioBuffer => {
+                audioBuffers[noteName] = audioBuffer;
+            });
+    });
 
-        .piano,
-        .controls {
+    try {
+        await Promise.all(promises);
+        console.log('All audio files for', selectedInstrument, 'loaded into buffers');
+    } catch (error) {
+        console.error('Error loading audio files into buffers:', error);
+    }
+}
 
-            display: none;
+
+function getURLParameters() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+        root: params.get('root'),
+        jamcard: params.get('jamcard'),
+        showNoteNames: params.get('showNoteNames'),
+        showJamCards: params.get('showJamCards'),
+        showKeyLabels: params.get('showKeyLabels'),
+        showControls: params.get('showControls')
+    };
+}
+
+function setVisibilityControlsFromParameters() {
+    const {
+        showNoteNames,
+        showJamCards,
+        showKeyLabels
+    } = getURLParameters();
+
+    const showNoteNamesCheckbox = document.getElementById('showNoteNames');
+    const showJamCardsCheckbox = document.getElementById('showJamCards');
+    const showKeyLabelsCheckbox = document.getElementById('showKeyLabels');
+
+    if (showNoteNames !== null) showNoteNamesCheckbox.checked = showNoteNames === 'true';
+    if (showJamCards !== null) showJamCardsCheckbox.checked = showJamCards === 'true';
+    if (showKeyLabels !== null) showKeyLabelsCheckbox.checked = showKeyLabels === 'true';
+
+    // Trigger the change events for these checkboxes to apply the changes
+    showNoteNamesCheckbox.dispatchEvent(new Event('change'));
+    showJamCardsCheckbox.dispatchEvent(new Event('change'));
+    showKeyLabelsCheckbox.dispatchEvent(new Event('change'));
+}
+
+function setDropdownsFromParameters() {
+    const { root, jamcard } = getURLParameters();
+
+    if (root && jamcard) {
+        const rootSelect = document.getElementById('rootSelect');
+        const jamCardSelect = document.getElementById('jamCardSelect');
+
+        if (rootSelect && jamCardSelect) {
+            rootSelect.value = root;
+            jamCardSelect.value = jamcard;
+
+            // Manually trigger change events as setting value programmatically doesn't do this
+            rootSelect.dispatchEvent(new Event('change'));
+            jamCardSelect.dispatchEvent(new Event('change'));
         }
     }
 }
 
-/* Show piano and controls, and hide orientation alert in landscape mode */
-@media screen and (orientation: landscape) {
-    #orientationAlert {
-        display: none;
+// add class for key styling
+function handleKeyPress(noteNumber) {
+    const noteName = noteMapping[noteNumber];
+    document.getElementById('noteDisplay').textContent = `${noteName}`;
+}
+
+function handleKeyClick(event) {
+    // Deselect the last selected key
+    const currentlySelectedElem = document.querySelector("div.key-pressed");
+    if (currentlySelectedElem) {
+        currentlySelectedElem.classList.remove("key-pressed");
     }
 
-    .main-container,
-    .controls {
-        display: flex;
+    // Indicate the current selection
+    event.target.classList.add("key-pressed");
+
+    // Update the display with the clicked key's note
+    const noteNumber = parseInt(event.target.dataset.noteNumber, 10);
+    handleKeyPress(noteNumber);
+}
+
+const keys = document.querySelectorAll('.white-key, .black-key-1, .black-key-2, .black-key-3, .black-key-4, .black-key-5');
+keys.forEach(key => key.addEventListener('click', handleKeyClick));
+
+
+
+
+
+function clearCardTones() {
+    const keys = document.querySelectorAll('.white-key, .black-key-1, .black-key-2, .black-key-3, .black-key-4, .black-key-5');
+    keys.forEach(key => {
+        // Reset background color for all keys
+        key.style.backgroundColor = key.classList.contains('white-key') ? '#FFFFFF' : '#000000';
+        // If you are using a special class for the root key, consider removing it to reset its state
+        key.classList.remove('root-key');
+    });
+}
+
+
+function colorRootNotes(rootNote) {
+    clearCardTones();
+
+    var noteToIdMapping = {
+        "C": [1, 13, 25],
+        "C# / Db": [2, 14],
+        "D": [3, 15],
+        "D# / Eb": [4, 16],
+        "E": [5, 17],
+        "F": [6, 18],
+        "F# / Gb": [7, 19],
+        "G": [8, 20],
+        "G# / Ab": [9, 21],
+        "A": [10, 22],
+        "A# / Bb": [11, 23],
+        "B": [12, 24],
+    };
+
+    var rootKeyIds = noteToIdMapping[rootNote];
+
+    if (rootKeyIds) {
+        rootKeyIds.forEach(function (keyId) {
+            var keyElement = document.getElementById(keyId);
+            if (keyElement) {
+                keyElement.classList.add('root-key');
+                keyElement.style.backgroundColor = '#DC387D';
+            }
+        });
+    }
+}
+
+function getAllIndices(arr, val) {
+    let indices = [], i = -1;
+    while ((i = arr.indexOf(val, i + 1)) !== -1) {
+        indices.push(i);
+    }
+    return indices;
+}
+
+function colorKey(keyId, color) {
+    // This assumes your black keys have IDs that still correlate correctly with your mapping
+    let keyElement = document.getElementById(keyId.toString());
+    if (keyElement) {
+        // Apply color change to all related black key variants
+        if (keyElement.classList.contains('black-key-1') || keyElement.classList.contains('black-key-2') || keyElement.classList.contains('black-key-3')) {
+            keyElement.style.backgroundColor = color;
+        } else if (!keyElement.classList.contains('root-key')) {
+            keyElement.style.backgroundColor = color; // For white keys or non-variant black keys
+        }
+    }
+}
+
+
+function getNoteKeyIds(note) {
+    // Mapping of note names to their corresponding key IDs
+    const noteToKeyId = {
+        "C": [1, 13, 25],
+        "C# / Db": [2, 14],
+        "D": [3, 15],
+        "D# / Eb": [4, 16],
+        "E": [5, 17],
+        "F": [6, 18],
+        "F# / Gb": [7, 19],
+        "G": [8, 20],
+        "G# / Ab": [9, 21],
+        "A": [10, 22],
+        "A# / Bb": [11, 23],
+        "B": [12, 24]
+    };
+
+    return noteToKeyId[note] || []; // Return all occurrences of the note
+}
+
+//Jam Card Selection Logic
+
+function colorPentatonicScale(rootNote, chromaticScale) {
+    const cardTones = [2, 4, 7, 9]; // Intervals for Major Pentatonic scale
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        cardTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#42E2D9');
+            });
+        });
+    });
+}
+
+function colorMinorPentatonicScale(rootNote, chromaticScale) {
+    const cardTones = [3, 5, 7, 10]; // Intervals for Minor Pentatonic scale
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        cardTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#42E2D9'); // Or another color to differentiate from major pentatonic
+            });
+        });
+    });
+}
+
+function colorMajorScale(rootNote, chromaticScale) {
+    const cardTones = [2, 4, 5, 7, 9, 11]; // Intervals for Major scale
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        cardTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#42E2D9'); // Use a distinct color for the Major scale
+            });
+        });
+    });
+}
+
+function colorHarmonicMinorScale(rootNote, chromaticScale) {
+    const cardTones = [2, 3, 5, 7, 8, 11]; // Intervals for Harmonic Minor scale
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        cardTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#42E2D9'); // Use a distinct color for the Harmonic Minor scale
+            });
+        });
+    });
+}
+
+function colorBluesScale(rootNote, chromaticScale) {
+    const cardTones = [3, 5, 6, 7, 10]; // Intervals for Blues scale
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        cardTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                // Special color for interval 10
+                const color = interval === 6 ? '#3E78F1' : '#42E2D9';
+                colorKey(keyId, color);
+            });
+        });
+    });
+}
+
+function colorMajorChords(rootNote, chromaticScale) {
+    const chordTones = [4, 7]; // Intervals for Major chord
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        chordTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#42E2D9'); // Use a distinct color for Major chords
+            });
+        });
+    });
+}
+
+function colorMinorChords(rootNote, chromaticScale) {
+    const chordTones = [3, 7]; // Intervals for Minor chord
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        chordTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#42E2D9'); // Use a distinct color for Minor chords
+            });
+        });
+    });
+}
+
+function colorDominant7thChords(rootNote, chromaticScale) {
+    const chordTones = [4, 7, 10]; // Intervals for Dominant 7th chord
+
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        chordTones.forEach(interval => {
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+            keyIds.forEach(keyId => {
+                colorKey(keyId, '#42E2D9'); // Use a distinct color for Dominant 7th chords
+            });
+        });
+    });
+}
+
+function colorProgression145(rootNote, chromaticScale) {
+    // Chord tones intervals for a major chord (root, major third, perfect fifth)
+    const chordTones = [0, 4, 7];
+
+    // Find indices of the root note within the chromatic scale
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        // For each interval (including the root itself)
+        chordTones.forEach(interval => {
+            // Calculate the note index within the scale
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            // Fetch key IDs for the calculated note
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+
+            // Color each key ID based on whether it's the root or part of the chord
+            keyIds.forEach(keyId => {
+                if (interval === 0) {
+                    // Special color for the root note
+                    colorKey(keyId, '#DC387D');
+                } else {
+                    // Default color for the rest of the chord tones
+                    colorKey(keyId, '#42E2D9');
+                }
+            });
+        });
+    });
+}
+
+
+
+function colorProgression1456(rootNote, chromaticScale) {
+    // Chord tones intervals for a major chord (root, major third, perfect fifth)
+    const chordTones = [0, 4, 7];
+
+    // Find indices of the root note within the chromatic scale
+    let rootIndices = getAllIndices(chromaticScale, rootNote);
+    if (rootIndices.length === 0) {
+        return; // Exit if root note not found
+    }
+
+    rootIndices.forEach(rootIndex => {
+        // For each interval (including the root itself)
+        chordTones.forEach(interval => {
+            // Calculate the note index within the scale
+            let noteIndex = (rootIndex + interval) % chromaticScale.length;
+            // Fetch key IDs for the calculated note
+            let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+
+            // Color each key ID based on whether it's the root or part of the chord
+            keyIds.forEach(keyId => {
+                if (interval === 0) {
+                    // Special color for the root note
+                    colorKey(keyId, '#DC387D');
+                } else {
+                    // Default color for the rest of the chord tones
+                    colorKey(keyId, '#42E2D9');
+                }
+            });
+        });
+    });
+}
+
+function handleProgressionBoxClick(boxId, rootNote, chromaticScale) {
+    clearCardTones(); // Clear all previous colors
+
+    // Exclude box4 logic if not in progression1456
+    if (boxId === 'box4' && currentProgression !== 'progression1456') {
+        return; // Exit if box4 is clicked but the current progression is not 1456
+    }
+
+    // Remove the "active" class from all progression boxes
+    document.querySelectorAll('.progression-box').forEach(box => {
+        box.classList.remove('active');
+    });
+
+    // Add the "active" class to the clicked box
+    const clickedBox = document.getElementById(boxId);
+    if (clickedBox) {
+        clickedBox.classList.add('active');
+    }
+
+    const boxToChordTones = {
+        'box1': [0, 4, 7],
+        'box2': [5, 9, 12],
+        'box3': [7, 11, 14],
+        'box4': currentProgression === 'progression1456' ? [9, 0, 4] : null
+    };
+
+    const specialColorNoteIndex = { 'box1': 0, 'box2': 5, 'box3': 7, 'box4': 9 }; // Index to color specifically
+
+    const chordTones = boxToChordTones[boxId];
+    if (!chordTones) return; // Exit if no mapping found for the box
+
+    let rootIndex = chromaticScale.indexOf(rootNote);
+    if (rootIndex === -1) return; // Exit if root note not found
+
+    chordTones.forEach(interval => {
+        let noteIndex = (rootIndex + interval) % chromaticScale.length;
+        let keyIds = getNoteKeyIds(chromaticScale[noteIndex]);
+        keyIds.forEach(keyId => {
+            // Color the specific root note of each chord with #DC387D
+            if (interval === specialColorNoteIndex[boxId]) {
+                colorKey(keyId, '#DC387D');
+            } else {
+                colorKey(keyId, '#42E2D9'); // Use a distinct color for the other notes
+            }
+        });
+    });
+}
+
+
+
+
+
+
+
+
+const instrumentSelect = document.getElementById('instrumentSelect');
+
+instrumentSelect.addEventListener('change', function () {
+    const selectedInstrument = this.value;
+    loadAudioFiles(selectedInstrument); // Pass the selected instrument to the load function
+});
+
+
+
+
+
+
+// Play-Along Controls
+const jamAlongSelect = document.getElementById('jamAlongSelect');
+const playStopButton = document.getElementById('playStopButton');
+
+jamAlongSelect.addEventListener('change', function () {
+    // Ensure to stop and reset the current track if one is playing
+    if (jamAlongAudio) {
+        jamAlongAudio.pause();
+        jamAlongAudio.currentTime = 0;
+    }
+    loadJamAlongTrack(this.value);
+    // Set the play button label to "Stop"
+    playStopButton.textContent = 'Play';
+});
+
+function loadJamAlongTrack(trackName) {
+    if (jamAlongAudio) {
+        jamAlongAudio.pause();
+    }
+    jamAlongAudio = new Audio(`jamAlongs/${trackName}.mp3`);
+    jamAlongAudio.loop = true;
+
+    // Create a MediaElementAudioSourceNode
+    const jamAlongSource = audioContext.createMediaElementSource(jamAlongAudio);
+
+    // Connect to the jamAlongGainNode
+    jamAlongSource.connect(jamAlongGainNode);
+
+    // Adjust volume and tempo settings if needed
+    updateJamAlongAudioSettings();
+}
+
+
+// Adjust volume and tempo with sliders
+document.getElementById('jamAlongVolume').addEventListener('input', updateJamAlongAudioSettings);
+document.getElementById('jamAlongTempo').addEventListener('input', updateJamAlongAudioSettings);
+
+
+// Update volume and tempo immediately after a new track is loaded
+function updateJamAlongAudioSettings() {
+    if (jamAlongAudio) {
+        const volume = document.getElementById('jamAlongVolume').value;
+        const tempo = document.getElementById('jamAlongTempo').value / 100;
+
+        jamAlongAudio.volume = volume;
+        jamAlongAudio.playbackRate = tempo;
     }
 }
 
 
 
-body {
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #101D32;
-    color: #101D32;
-    font-family: 'Rubik', sans-serif;
-}
-
-.controls {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    /* 6 columns */
-    grid-template-rows: auto auto auto;
-    /* 3 rows */
-    gap: 5%;
-    /* Space between grid items */
-    padding: 10px;
-    /* Padding around the grid */
-    text-align: center;
-    margin-bottom: 10px;
-    background-color: #3d1773;
-    /* Primary Purple */
-    border-radius: 10px;
-    color: #FFFFFF;
-    /* White text for better contrast */
-    width: 80%;
-    text-align: center;
-}
-
-.slider-container label {
-    justify-content: center;
-}
-
-.roots,
-.jam-cards,
-.jam-card-message {
-    margin-bottom: 5%;
-    text-align: center !important;
-}
-
-.jamCardContainer {
-    border: 0px solid #42E2D9;
-    border-radius: 0px;
-    overflow: visible;
-    /* Allow contents to extend visually */
-    /* Define a width if not already set, or ensure it's controlled by parent elements */
-}
-
-#jamCardImage {
-    position: relative;
-    left: 0;
-    /* Initial position; will be updated during dragging */
-    top: 0;
-    /* Adjust based on your layout */
-    width: 70%;
-    /* Your existing style */
-    z-index: 9;
-}
-
-.title {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    /* Slightly space out title from controls */
-    text-align: center;
-}
-
-.jamTrack {
-    display: grid;
-    grid-column: 1 / span 2;
-    /* Span 2 columns */
-    grid-row: 2 / span 2;
-    /* Span all 3 rows */
-    text-align: center;
-}
-
-.expression-controls {
-    display: grid;
-    grid-column: 4 / span 2;
-    /* Span 2 columns */
-    grid-row: 2 / span 2;
-    /* Span all 3 rows */
-    text-align: center;
-}
-
-.progression-boxes {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2%;
-    margin-top: 5px;
-}
-
-.progression-box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 10px;
-    /* Adjust size as needed */
-    margin: 1.5%;
-    /* Space between boxes */
-    color: #333;
-    /* Dark text for contrast */
-    font-size: 16px;
-    /* Large, readable text */
-    font-weight: bold;
-    /* Bold text */
-    border-radius: 5px;
-    /* Rounded corners */
-    border: none;
-    /* Remove default border */
-    cursor: pointer;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-/* Initially hidden, space maintained */
-.progression-boxes {
-    visibility: hidden;
-    opacity: 0;
-}
-
-.active-box {
-    background-color: #42E2D9 !important; /* Highlight color */
-    color: white;
-}
-
-.instrument-note-display-controls {
-    background: #8C52DB;
-    /* A cool, inviting purple */
-    color: #FFFFFF;
-    /* White text for contrast */
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-    /* Subtle shadow for depth */
-    margin: 10% 10%;
-}
-
-/* Basic styling for dropdown selects */
-#instrumentSelect,
-#jamAlongSelect, select {
-    padding: 5px 18px 5px 15px;
-    /* Adequate padding for clickability */
-    margin: 5px;
-    /* Consistent margin */
-    background-color: #fff;
-    /* Light background */
-    border: 1px solid #ccc;
-    /* Subtle border */
-    border-radius: 4px;
-    /* Softened corners */
-    font-size: 16px;
-    /* Legible text */
-    color: #333;
-    /* Dark text for readability */
-    width: 90%;
-    /* Full width minus margin */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    /* Slight shadow for depth */
-    appearance: none;
-    /* Remove default styling */
-    cursor: pointer;
-    /* Indicate it's clickable */
-}
-
-/* Adding a custom dropdown arrow */
-#instrumentSelect,
-#jamAlongSelect, select {
-    background-image: linear-gradient(45deg, transparent 50%, gray 50%),
-        linear-gradient(135deg, gray 50%, transparent 50%);
-    background-position: right 10px top 50%, right 5px top 50%;
-    /* Adjust arrow position */
-    background-size: 5px 5px, 5px 5px;
-    /* Arrow size */
-    background-repeat: no-repeat;
-    text-align:center;
-}
-
-/* Focus state for accessibility */
-#instrumentSelect:focus,
-#jamAlongSelect:focus, select:focus {
-    border-color: #80bdff;
-    /* Highlight color */
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
-}
-
-
-
-
-
-
-
-
-
-.jam-along-controls {
-    grid-column: 4 / span 3;
-    /* Span 3 columns */
-    grid-row: 1 / span 3;
-    /* Span all 3 rows */
-    padding: 10px;
-    border-radius: 10px;
-    display: grid;
-    align-items: center;
-    gap: 10px;
-    background: #8C52DB;
-    /* A cool, inviting purple */
-    color: #FFFFFF;
-    /* White text for contrast */
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-    /* Subtle shadow for depth */
-}
-
-#playStopButton {
-  text-transform: uppercase;
-background-color: #dc387d;
-color: white;
-padding: .5em 2em;
-border: none;
-border-radius: 50px;
-cursor: pointer;
-box-sizing: border-box;
-text-align: center;
-font-weight: bold;
-margin-top: 3px;
-}
-
-#playStopButton:hover {
-    background-color: #BAFEFF;
-    color: #101D32;
-}
-
-
-.main-container {
-    display: grid;
-    grid-template-columns: 15% 85%;
-    gap: 1%;
-    height: auto;
-    width: 98%;
-    position: relative;
-}
-
-
-.side-panel {
-    padding: 0.5em;
-    background-color: #727F95;
-    /* Consistent with piano background */
-    color: white;
-    /* Text color */
-    border-right: 2px solid #42E2D9;
-    border: 3px solid #42E2D9;
-    border-radius: 10px;
-    /* Accent border color */
-    text-align: center;
-}
-
-.jam-card-controls {
-    text-align: center !important;
-    height: 100%;
-    position: relative;
-}
-
-#feedbackLink {
-    position: absolute;
-    bottom: 20px;
-    color: #ffffff;
-    left: 0%;
-    right: 0%;
-}
-
-.jam-cards {
-    width: 100%; /* or a specific width */
-    text-align: center !important;
-    display: block; /* Make sure it's a block element to center properly */
-}
-
-.roots {
-    width: 100%; /* or a specific width */
-    text-align: center !important;
-    display: block; /* Make sure it's a block element to center properly */
-}
-
-.keyboard-panel {
-    width: 100%;
-}
-
-.keyboard {
-    width: 100%;
-    display: grid;
-    gap: 2px;
-    /* Optional: adds a gap between keys */
-}
-
-.piano {
-    
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
-    border: 3px solid #42E2D9;
-    border-radius: 10px;
-    background-color: #727F95;
-    padding: 0px;
-    position: relative;
-    overflow: hidden;
-    width: fit-content;
-
-}
-
-.smallerKeys {
-    position: relative;
-    display: inline-block;
-    width: 4.75vw;
-    /* Adjust as needed */
-}
-
-.largerKeys {
-    position: relative;
-    display: inline-block;
-    width: 5vw;
-    /* Adjust as needed */
-}
-
-.white-key {
-    height: 40vh;
-    width: 100%;
-    background-color: #FFFFFF;
-    border: 1px solid #727F95;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 1.2);
-    transition: box-shadow 0.1s ease;
-    cursor: pointer;
-}
-
-.black-key-1 {
-    height: 24vh;
-    width: 58.33%;
-    background-color: #000000;
-    position: absolute;
-    top: 0;
-    left: 58%;
-    z-index: 1;
-    border: 1px solid #727F95;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
-    transition: box-shadow 0.1s ease;
-    cursor: pointer;
-}
-
-.black-key-2 {
-    height: 24vh;
-    width: 58.33%;
-    background-color: #000000;
-    position: absolute;
-    top: 0;
-    left: 63%;
-    z-index: 1;
-    border: 1px solid #727F95;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
-    transition: box-shadow 0.1s ease;
-    cursor: pointer;
-}
-
-.black-key-3 {
-    height: 24vh;
-    width: 58.33%;
-    background-color: #000000;
-    position: absolute;
-    top: 0;
-    left: 72.5%;
-    z-index: 1;
-    border: 1px solid #727F95;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
-    transition: box-shadow 0.1s ease;
-    cursor: pointer;
-}
-
-.black-key-4 {
-    height: 24vh;
-    width: 58.33%;
-    background-color: #000000;
-    position: absolute;
-    top: 0;
-    left: 83%;
-    z-index: 1;
-    border: 1px solid #727F95;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
-    transition: box-shadow 0.1s ease;
-    cursor: pointer;
-}
-
-.black-key-5 {
-    height: 24vh;
-    width: 58.33%;
-    background-color: #000000;
-    position: absolute;
-    top: 0;
-    left: 87%;
-    z-index: 1;
-    border: 1px solid #727F95;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
-    transition: box-shadow 0.1s ease;
-    cursor: pointer;
-}
-
-.key-container,
-.piano,
-.smallerKeys,
-.largerKeys {
-    box-sizing: border-box;
-    /* Include padding and border in the width */
-}
-
-
-/* Style for pressed keys */
-.key-pressed {
-    transform: translateY(2px);
-    box-shadow: none;
-    /* Example to remove shadow to mimic pressing */
-}
-
-.black-key.key-pressed {
-    box-shadow: inset 0px 0px 2px 1px gray;
-}
-
-.note-name-white {
-    position: absolute;
-    bottom: 1%;
-    /* Adjust as needed */
-    left: 50%;
-    /* Center horizontally */
-    transform: translateX(-50%);
-    /* Adjust horizontal centering */
-    color: black;
-    /* or white, depending on key color */
-    font-weight: bold;
-    pointer-events: none;
-    z-index: 1;
-    font-size: 1.2em;
-    /* Prevents the note name from interfering with key clicks */
-}
-
-.note-name-black-1 {
-    position: absolute;
-    bottom: 42%;
-    /* Adjust as needed */
-    left: 90%;
-    /* Center horizontally */
-    transform: translateX(-50%);
-    /* Adjust horizontal centering */
-    color: rgb(255, 255, 255);
-    /* or white, depending on key color */
-    font-weight: bold;
-    pointer-events: none;
-    text-align: center;
-    z-index: 1;
-    /* Prevents the note name from interfering with key clicks */
-}
-
-.note-name-black-2 {
-    position: absolute;
-    bottom: 42%;
-    /* Adjust as needed */
-    left: 100%;
-    /* Center horizontally */
-    transform: translateX(-50%);
-    /* Adjust horizontal centering */
-    color: rgb(255, 255, 255);
-    /* or white, depending on key color */
-    font-weight: bold;
-    pointer-events: none;
-    text-align: center;
-    z-index: 1;
-    /* Prevents the note name from interfering with key clicks */
-}
-
-.note-name-black-3 {
-    position: absolute;
-    bottom: 42%;
-    /* Adjust as needed */
-    left: 115%;
-    /* Center horizontally */
-    transform: translateX(-50%);
-    /* Adjust horizontal centering */
-    color: rgb(255, 255, 255);
-    /* or white, depending on key color */
-    font-weight: bold;
-    pointer-events: none;
-    text-align: center;
-    z-index: 1;
-    /* Prevents the note name from interfering with key clicks */
-}
-
-
-
-.options {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    justify-content: center;
-    flex-direction: row;
-    text-align: center;
-    padding: 10px;
-    border-radius: 10px;
-    margin-top: 0px;
-    background: rgba(0, 0, 0, 0.1);
-}
-
-.options label {
-    display: flex;
-    align-items: center;
-    margin: 0;
-    /* Adjust spacing between each label */
-    cursor: pointer;
-    color: white;
-    /* Text color */
-    font-size: 16px;
-}
-
-
-
-#noteDisplay {
-  align-items: center;
-  background: #BAFEFF;
-  border-radius: 2px;
-  color: #101D32;
-  display: inline-block;
-  padding: 10px;
-  font-size: 18px;
-  font-weight: bold;
-  height: auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
-  white-space: nowrap;
-  width: 75%;
-}
-
-
-
-
-/* Style adjustments for checkbox labels */
-.toggle-label {
-  display: flex;
-  background-color: #101D32;
-  color: white;
-  padding: .5em .5em .5em 1em;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out, transform 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  user-select: none;
-  position: relative;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 50px;
-  box-sizing: border-box;
-  font-size: 0.9em;
-}
-
-.toggle-label:hover {
-      background-color: #182D4E;
-}
 
-/* Hides the actual checkbox input */
-.toggle-label input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  height: 0;
-  width: 0;
-}
-
-span.toggle-checked {
-    height: 1.5em;
-    width: 1.5em;
-    background-color: #D2D7E9;
-    border-radius: 100%;
-    border: 5px solid #D2D7E9;
-    box-sizing: border-box;
-}
-
-.toggle-label input:checked ~ .toggle-checked {
-  background-color: #DC387D;
-}
-
-
-/* Optional: Styling for active/clicked state */
-.toggle-label:active {
-    transform: translateY(2px);
-    /* Mimic button press down effect */
-}
-
-
-.keyboard-labels {
-    display: grid;
-    grid-template-columns: repeat(25, 1fr);
-    /* Adjust the number 25 to match the number of keys/labels */
-    gap: 0%;
-    /* Space between labels, adjust as needed */
-    width: 98%;
-    position: relative;
-    /* This ensures the piano is the reference point for its children */
-    /* This ensures the labels stretch to match the piano's width */
-    justify-items: center;
-    /* Centers the labels in their grid cells */
-
-    margin-bottom: 5px;
-    /* Adds some space between the labels and the keys */
-}
-
-.key-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    /* Adjust the font size as needed */
-    font-weight: bold;
-    text-align: center;
-    /* Ensures text is centered within each label */
-    padding: 5px .5vh;
-    /* Adjust padding as needed for visual appeal */
-    background-color: #eee;
-    /* Label background color */
-    border-radius: 4px;
-    /* Rounds the corners of the labels */
-    border: 1% solid #ccc;
-    /* Adds a subtle border to resemble the edges of a key */
-    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-    /* Adds a subtle shadow to give the keys a 3D effect */
-    width: 1.5vh;
-    height: 1.5vh;
-}
-
-/* Add spacing for larger-key-labels */
-.larger-key-labels {
-    width: 50%; /* Adjust the width */
-    padding-left: 1%;
-    padding-right: 1%;
-}
-
-/* Add spacing for smaller-key-labels */
-.smaller-key-labels {
-    margin: 1% !important; /* Adjust the value as needed */
-}
-
-select {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: white;
-    cursor: pointer;
-    display:block;
-    margin:auto;
-}
+// Piano Volume Control
+const pianoVolumeSlider = document.getElementById('pianoVolume');
+pianoVolumeSlider.addEventListener('input', function () {
+    pianoGainNode.gain.value = parseFloat(this.value);
+});
+
+// Jam-Along Volume Control
+const jamAlongVolumeSlider = document.getElementById('jamAlongVolume');
+jamAlongVolumeSlider.addEventListener('input', function () {
+    jamAlongGainNode.gain.value = parseFloat(this.value);
+});
+
+
+
+playStopButton.addEventListener('click', function () {
+    if (jamAlongAudio && !jamAlongAudio.paused) {
+        jamAlongAudio.pause();
+        this.textContent = 'Play';
+    } else if (jamAlongAudio) {
+        jamAlongAudio.play();
+        this.textContent = 'Stop';
+    } else {
+        // Load and play the first track by default if no track was previously selected
+        const selectedTrack = jamAlongSelect.value || 'Beat 1'; // Default to 'Beat 1' or current selection
+        loadJamAlongTrack(selectedTrack);
+        jamAlongAudio.play();
+        this.textContent = 'Stop';
+    }
+});
+
+function playNote(noteName, keyId) {
+    if (!audioBuffers[noteName]) {
+        console.error('Audio buffer for note', noteName, 'not found');
+        return;
+    }
+
+
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffers[noteName];
+
+    // Connect the source to the piano gain node
+    source.connect(pianoGainNode);
+    source.start();
+
+    // Visual feedback remains unchanged
+    const keyElement = document.getElementById(keyId);
+    keyElement.classList.add('key-pressed');
+    setTimeout(() => {
+        keyElement.classList.remove('key-pressed');
+    }, 200);
+
+    // Update the note display with the pressed note
+    document.getElementById('noteDisplay').textContent = noteName;
+
+    // Clean up after the note has finished playing
+    source.onended = function () {
+        source.disconnect();
+    };
+}
+
+function initializeJamCardImageListeners() {
+    const jamCardImage = document.getElementById('jamCardImage');
+    const jamCardContainer = document.getElementById('jamCardContainer');
+
+    // Function to handle the start of interactions
+    function startInteraction(event) {
+        // Prevent default action for touch events to avoid scrolling, etc.
+        if (event.type.startsWith('touch')) {
+            event.preventDefault();
+        }
+
+        // Determine if the interaction is directly on the jamCardImage or through delegation
+        const targetId = event.type.startsWith('touch') ? event.touches[0].target.id : event.target.id;
+        if (targetId === 'jamCardImage') {
+            startDrag(event);
+        }
+    }
+
+    // Directly attach events if jamCardImage is present
+    if (jamCardImage) {
+        console.log("Attaching mousedown event listener to jamCardImage...");
+        jamCardImage.addEventListener('mousedown', startInteraction);
+        console.log("Attaching touchstart event listener to jamCardImage...");
+        jamCardImage.addEventListener('touchstart', startInteraction, { passive: false });
+    }
+
+    // Event delegation approach for the container
+    if (jamCardContainer) {
+        jamCardContainer.addEventListener('mousedown', function (event) {
+            startInteraction(event);
+        });
+        jamCardContainer.addEventListener('touchstart', function (event) {
+            startInteraction(event);
+        }, { passive: false });
+    }
+
+    // Ensure to attach corresponding move and end events within startDrag or as needed
+}
+
+
 
-.progression-boxes {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 10px;
-    visibility: hidden;
-    /* Initially hidden */
-}
-
-.progression-box {
-    height: 40px;
-    /* Example height */
-    background-color: #efefef;
-    /* Light grey background */
-    border: 1px solid #dddddd;
-    /* Slightly darker border */
-    border-radius: 5px;
-    /* Rounded corners */
-}
-
-/* Checkbox labels */
-label {
-    display: flex;
-    margin: 5px 0;
-    cursor: pointer;
-}
-
-/* Styling for the 'Copy my settings' button */
-#copySettingsButton {
-  text-transform: uppercase;
-background-color: #dc387d;
-color: white;
-padding: 10px;
-border: none;
-border-radius: 50px;
-cursor: pointer;
-margin-top: 10px;
-width: 100%;
-box-sizing: border-box;
-text-align: center;
-font-weight: bold;
-}
-
-#copySettingsButton:hover {
-    background-color: #BAFEFF;
-    color: #101D32;
-}
-
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.popup-content {
-    background-color: #F8F9FA;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    width: 60%;
-    max-width: 400px;
-    text-align: center;
-}
-
-#closePopup {
-    padding: 10px 20px;
-    background-color: #DC3545;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1em;
-    margin-top: 20px;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-}
 
-#closePopup:hover {
-    background-color: #c82333;
-}
-
 
-
-
-.hidden {
-    visibility: hidden;
-}
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("Second DOMContentLoaded listener.");
+    var keys = document.querySelectorAll('.white-key, .black-key-1, .black-key-2, .black-key-3, .black-key-4, .black-key-5');
+    var rootSelect = document.getElementById('rootSelect');
+    var jamCardSelect = document.getElementById('jamCardSelect');
+    var jamCardLabel = document.querySelector('label[for="jamCardSelect"]');
+    var jamCardContainer = document.getElementById('jamCardContainer');
+    const labelShowJamCards = document.querySelector('#labelShowJamCards span');
+    const jamCardImage = document.getElementById('jamCardImage'); // Reference to the jam card image
+    const showNoteNamesCheckbox = document.getElementById('showNoteNames');
+    const showJamCardsCheckbox = document.getElementById('showJamCards');
+    const showControlsCheckbox = document.getElementById('showControls');
+    const jamAlongTempo = document.getElementById('jamAlongTempo');
+    const noteNames = document.querySelectorAll('.note-name-white, .note-name-black');
+    const controls = document.querySelector('.controls');
+    const piano = document.querySelector('.piano'); // Get the parent element
+    const showKeyLabelsCheckbox = document.getElementById('showKeyLabels');
+    const keyLabels = document.querySelectorAll('.key-label');
+
+    keys.forEach(function (key) {
+        key.addEventListener('click', function () {
+            playNote(noteMapping[key.id], key.id);
+            var noteId = key.getAttribute('id');
+            var noteName = noteMapping[noteId];
+            playNote(noteName, noteId);
+        });
+    });
+
+
+    keys.forEach(function (key) {
+        key.addEventListener('touchstart', function (event) {
+            event.preventDefault(); // Prevent scrolling and other default touch behaviors
+            playNote(noteMapping[key.id], key.id);
+        }, { passive: false }); // Use passive: false to allow preventDefault
+    });
+
+
+    piano.addEventListener('click', function (event) {
+        // Check if the clicked element is a key
+        if (event.target.classList.contains('white-key') || event.target.classList.contains('black-key')) {
+            handleKeyPress(event.target.id); // Pass the key ID to the handler
+        }
+    });
+
+    document.getElementById('jamAlongVolume').addEventListener('input', function () {
+        if (jamAlongAudio) {
+            jamAlongAudio.volume = this.value; // Assuming the slider value is between 0 and 100
+        }
+    });
+
+    document.getElementById('jamAlongTempo').addEventListener('input', function () {
+        if (jamAlongAudio) {
+            // Convert the tempo slider value to a playback rate.
+            // This example assumes the slider value ranges from 60 (slow) to 140 (fast),
+            // with 100 being the normal speed. You'll need to adjust the calculation
+            // based on your slider's range and desired effect.
+            playbackRate = this.value / 100; // Simple example, adjust as needed
+            jamAlongAudio.playbackRate = playbackRate;
+        }
+    });
+
+    rootSelect.addEventListener('change', function () {
+        console.log("Root select changed. New value:", this.value);
+        const keys = document.querySelectorAll('.root-key');
+        keys.forEach(function (key) {
+            key.classList.remove('root-key');
+        });
+
+        // Reference to the jam card image
+        const jamCardImage = document.getElementById('jamCardImage');
+
+        if (this.value !== 'none') {
+            // A root note is selected
+            const marginPercentage = noteToMarginMapping[this.value];
+            jamCardImage.style.left = `${marginPercentage}%`; // Adjust the jam card image position
+
+            jamCardSelect.style.display = 'block';
+            jamCardLabel.style.display = 'block';
+            colorRootNotes(this.value);
+            console.log(marginPercentage);
+
+            if (jamCardSelect.value === 'none') {
+                console.log("Jamcard set to none");
+                // No specific jam card is selected, display the rootOnly.jpg jam card
+                jamCardImage.src = 'jamCards/rootOnly.jpg';
+                jamCardImage.alt = 'Root Only Jam Card';
+                jamCardMessage.innerHTML = '';
+                jamCardImage.style.display = 'block';
+            } else {
+                console.log("Jamcard selected");
+                // A specific jam card is selected, apply coloring based on selection
+                switch (jamCardSelect.value) {
+                    case 'majorPentatonic':
+                        colorPentatonicScale(this.value, chromaticScale);
+                        break;
+                    case 'minorPentatonic':
+                        colorMinorPentatonicScale(this.value, chromaticScale);
+                        break;
+                    case 'major':
+                        colorMajorScale(this.value, chromaticScale);
+                        break;
+                    case 'harmonicMinor':
+                        colorHarmonicMinorScale(this.value, chromaticScale);
+                        break;
+                    case 'blues':
+                        colorBluesScale(this.value, chromaticScale);
+                        break;
+                    case 'chordsMajor':
+                        colorMajorChords(this.value, chromaticScale);
+                        break;
+                    case 'chordsMinor':
+                        colorMinorChords(this.value, chromaticScale);
+                        break;
+                    case 'chordsDominant7th':
+                        colorDominant7thChords(this.value, chromaticScale);
+                        break;
+                    case 'progression145':
+                        colorProgression145(this.value, chromaticScale);
+                        break;
+                    case 'progression1456':
+                        colorProgression1456(this.value, chromaticScale);
+                        break;
+                    default:
+                        // If for some reason the value doesn't match, clear tones and ensure proper handling
+                        clearCardTones();
+                        break;
+                }
+            }
+        } else {
+            // No root note is selected, show the default home.jpg jam card
+            jamCardSelect.style.display = 'none';
+            jamCardLabel.style.display = 'block';
+            jamCardMessage.innerHTML = 'No Root Selected';
+            clearCardTones();
+
+            // Set the jamCardImage source to the default home.jpg
+            jamCardImage.src = 'jamCards/home.jpg';
+            jamCardImage.alt = 'Home Jam Card';
+            jamCardImage.style.display = 'block'; // Make sure the image is visible
+        }
+
+    });
+
+
+
+
+    jamCardSelect.addEventListener('change', function () {
+        console.log("Jam Card select changed. New value:", this.value);
+        const rootNote = rootSelect.value;
+        const isProgression = this.value.startsWith('progression');
+        const progressionBoxes = document.querySelector('.progression-boxes');
+        currentProgression = this.value;
+        clearCardTones();
+
+        // Always color the root note first
+        if (rootNote !== 'none') {
+            colorRootNotes(rootNote);
+        }
+
+        if (isProgression) {
+            progressionBoxes.style.visibility = 'visible';
+            progressionBoxes.style.opacity = 1;
+
+            // Remove 'active-box' class from all progression boxes
+            document.querySelectorAll('.progression-box').forEach(box => {
+                box.classList.remove('active-box');
+            });
+
+            // Set box1 as active by default
+            const box1 = document.getElementById('box1');
+            box1.classList.add('active-box');
+
+            // Call the function to handle the progression box logic for box1
+            handleProgressionBoxClick('box1', rootNote, chromaticScale);
+
+        } else {
+            progressionBoxes.style.visibility = 'hidden';
+            progressionBoxes.style.opacity = 0;
+        }
+
+        // Check if the selected jam card is a progression
+        if (this.value.startsWith('progression')) {
+            // Display the progression boxes
+            document.querySelector('.progression-boxes').style.visibility = 'visible';
+
+            // Clear previous values
+            document.querySelectorAll('.progression-box').forEach(box => {
+                box.textContent = '';
+                box.addEventListener('click', function () {
+                    // Remove 'active-box' class from all boxes
+                    document.querySelectorAll('.progression-box').forEach(b => b.classList.remove('active-box'));
+
+                    // Add 'active-box' class to the clicked box
+                    this.classList.add('active-box');
+
+                    // Call the function to handle the progression box logic
+                    const rootNote = document.getElementById('rootSelect').value;
+                    handleProgressionBoxClick(this.id, rootNote, chromaticScale);
+                });
+            });
+
+            // Define the chord mappings for each progression type
+            const progressionMapping = {
+                'progression145': ['I', 'IV', 'V'],
+                'progression1456': ['I', 'IV', 'V', 'vi']
+            };
+
+            // Get the chords for the selected progression
+            const chords = progressionMapping[this.value] || [];
+
+            // Update the content of each progression box with the corresponding Roman numeral
+            chords.forEach((chord, index) => {
+                const box = document.querySelector(`#box${index + 1}`);
+                box.textContent = chord;
+                console.log("chords have been set");
+            });
+
+        } else {
+            // Hide the progression boxes if the selection is not a progression
+            document.querySelector('.progression-boxes').style.visibility = 'hidden';
+        }
+
+        // If no root note is selected, default actions to show the home jam card
+        if (rootNote === 'none' || this.value === 'none') {
+            jamCardImage.src = 'jamCards/home.jpg';
+            jamCardImage.alt = 'Home Jam Card';
+            jamCardContainer.style.display = 'block'; // Ensure container is visible if previously hidden
+            labelShowJamCards.textContent = 'Hide Jam Cards'; // Update label to reflect action
+            showJamCardsCheckbox.checked = true; // Ensure the checkbox is checked
+        } else {
+            // Determine the correct jam card based on selection
+            let jamCardFilename;
+            switch (this.value) {
+                case 'majorPentatonic':
+                    colorPentatonicScale(rootNote, chromaticScale);
+                    jamCardFilename = 'majorPentatonic.jpg';
+                    break;
+                case 'minorPentatonic':
+                    colorMinorPentatonicScale(rootNote, chromaticScale);
+                    jamCardFilename = 'minorPentatonic.jpg';
+                    break;
+                case 'major':
+                    colorMajorScale(rootNote, chromaticScale);
+                    jamCardFilename = 'major.jpg';
+                    break;
+                case 'harmonicMinor':
+                    colorHarmonicMinorScale(rootNote, chromaticScale);
+                    jamCardFilename = 'harmonicMinor.jpg';
+                    break;
+                case 'blues':
+                    colorBluesScale(rootNote, chromaticScale);
+                    jamCardFilename = 'blues.jpg';
+                    break;
+                case 'chordsMajor':
+                    colorMajorChords(rootNote, chromaticScale);
+                    jamCardFilename = 'chordsMajor.jpg';
+                    break;
+                case 'chordsMinor':
+                    colorMinorChords(rootNote, chromaticScale);
+                    jamCardFilename = 'chordsMinor.jpg';
+                    break;
+                case 'chordsDominant7th':
+                    colorDominant7thChords(rootNote, chromaticScale);
+                    jamCardFilename = 'chordsDominant7th.jpg';
+                    break;
+                case 'progression145':
+                    colorProgression145(rootNote, chromaticScale);
+                    jamCardFilename = 'progression145.jpg';
+                    break;
+                case 'progression1456':
+                    colorProgression1456(rootNote, chromaticScale);
+                    jamCardFilename = 'progression1456.jpg';
+                    break;
+                default:
+                    clearCardTones();
+                    jamCardFilename = 'rootOnly.jpg'; // Use a default image if selection doesn't match
+                    break;
+            }
+
+            // Update jam card image source and alternative text
+            jamCardImage.src = `jamCards/${jamCardFilename}`;
+            jamCardImage.alt = `${this.value.replace(/([A-Z])/g, ' $1').trim()} Jam Card`;
+            jamCardContainer.style.display = 'block'; // Show the jam card container
+            labelShowJamCards.textContent = 'Hide Jam Cards'; // Update label text to indicate action
+            showJamCardsCheckbox.checked = true; // Ensure the checkbox is checked
+        }
+
+    });
+
+
+    document.getElementById('jamCardSelect').addEventListener('change', function () {
+        const isProgression = this.value.startsWith('progression');
+        const progressionBoxes = document.querySelector('.progression-boxes');
+        const jamCardImage = document.getElementById('jamCardImage'); // Ensure you have this element correctly referenced
+
+        if (isProgression) {
+            progressionBoxes.style.visibility = 'visible';
+            progressionBoxes.style.opacity = 1;
+        } else {
+            progressionBoxes.style.visibility = 'hidden';
+            progressionBoxes.style.opacity = 0;
+        }
+
+    });
+
+    // Initially set up the click listeners once outside the 'change' event listener
+    document.querySelectorAll('.progression-box').forEach(box => {
+        box.addEventListener('click', handleBoxClick);
+    });
+
+    function handleBoxClick() {
+        const rootSelectElement = document.getElementById('rootSelect');
+        const currentRootNote = rootSelectElement.value;
+        // Ensure clearCardTones is called to reset the key colors
+        clearCardTones();
+        handleProgressionBoxClick(this.id, currentRootNote, chromaticScale); // 'this' refers to the clicked box
+    }
+
+
+    // Event listener for the checkbox
+    showKeyLabelsCheckbox.addEventListener('change', toggleKeyLabelsVisibility);
+
+    // Call the function on page load to apply the initial state
+    toggleKeyLabelsVisibility();
+
+
+
+
+    // Function to toggle visibility
+    function toggleKeyLabelsVisibility() {
+        const isChecked = showKeyLabelsCheckbox.checked;
+        keyLabels.forEach(label => {
+            label.style.display = isChecked ? '' : 'none';
+        });
+        // Update label text based on the checkbox state: document.querySelector('#labelShowKeyLabels span').textContent = isChecked ? 'Hide Computer Keys' : 'Show Computer Keys';
+    }
+
+    // Event listener for the checkbox
+    showKeyLabelsCheckbox.addEventListener('change', toggleKeyLabelsVisibility);
+
+    // Call the function on page load to apply the initial state
+    toggleKeyLabelsVisibility();
+
+    // Start Button Event Listener
+    document.getElementById('startButton').addEventListener('click', async function () {
+        document.getElementById('overlay').style.display = 'none';
+
+        if (audioContext.state === 'suspended') {
+            try {
+                await audioContext.resume();
+                console.log('AudioContext resumed successfully.');
+            } catch (error) {
+                console.error('Error resuming AudioContext:', error);
+            }
+        }
+
+        if (Object.keys(audioBuffers).length === 0) { // Check if audioBuffers is empty
+            await loadAudioFiles(); // Call a function to load audio files
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.repeat) return; // Prevent multiple triggers for long key presses
+        const note = keyboardToNoteMapping[event.code];
+        if (note) {
+            // Find the keyId corresponding to the note
+            const keyId = Object.keys(noteMapping).find(key => noteMapping[key] === note);
+            if (keyId) {
+                playNote(note, keyId);
+            }
+        }
+    });
+
+
+
+
+
+
+
+    // Toggle display of note names and update label text
+    showNoteNamesCheckbox.addEventListener('change', function () {
+        document.querySelectorAll('.note-name-white, .note-name-black-1, .note-name-black-2, .note-name-black-3').forEach(noteName => {
+            noteName.style.display = this.checked ? '' : 'none';
+        });
+        // Update label text based on the checkbox state: document.querySelector('#labelShowNoteNames span').textContent = this.checked ? 'Hide Note Names' : 'Show Note Names';
+    });
+
+    // Toggle display of jam cards and update label text
+    showJamCardsCheckbox.addEventListener('change', function () {
+        // Assuming 'home.jpg' is the default view when no root or jam card is selected
+        // and 'rootOnly.jpg' is shown when a root is selected but no specific jam card is chosen.
+        const rootNote = rootSelect.value;
+        const jamCardSelection = jamCardSelect.value;
+
+        // Check if the checkbox is checked
+        if (this.checked) {
+            // Show the jam card container
+            jamCardContainer.style.display = 'block';
+
+            if (rootNote === 'none') {
+                // No root note selected, show 'home' jam card
+                jamCardImage.src = 'jamCards/home.jpg';
+                jamCardImage.alt = 'Home Jam Card';
+                // Update label text based on the checkbox state: labelShowJamCards.textContent = 'Hide Jam Cards';
+            } else if (jamCardSelection === 'none') {
+                // Root note selected but no specific jam card chosen, show 'rootOnly' jam card
+                jamCardImage.src = 'jamCards/rootOnly.jpg';
+                jamCardImage.alt = 'Root Only Jam Card';
+                // Update label text based on the checkbox state: labelShowJamCards.textContent = 'Hide Jam Cards';
+            } else {
+                // A specific jam card is selected, no change needed here as the src should already be set
+                // Update label text based on the checkbox state: labelShowJamCards.textContent = 'Hide Jam Cards';
+            }
+        } else {
+            // The checkbox is unchecked
+            jamCardContainer.style.display = 'none';
+            // Update label text based on the checkbox state: labelShowJamCards.textContent = 'Show Jam Cards';
+        }
+    });
+
+
+
+
+
+    // Initial state setup based on checkbox default values
+    // Note: This step may be optional based on your initial CSS. It ensures the JavaScript respects the initial checkbox states.
+    showNoteNamesCheckbox.dispatchEvent(new Event('change'));
+    showJamCardsCheckbox.dispatchEvent(new Event('change'));
+
+    // Initially hide the jamCardSelect and label
+    jamCardSelect.style.display = 'none';
+    jamCardLabel.style.display = 'No Root Selected';
+    jamCardContainer.style.display = 'none'; // Make the Jam Card container visible
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("Third DOMContentLoaded listener.");
+    const jamCardImage = document.getElementById('jamCardImage');
+    const jamCardContainer = document.getElementById('jamCardContainer');
+    let isDragging = false;
+    let startX = 0;
+    let startLeftPercentage = 0; // Track the start left percentage
+
+    function startDrag(e) {
+        e.preventDefault(); // Prevent default action (text selection, etc.)
+        isDragging = true;
+        startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        startLeftPercentage = (jamCardImage.offsetLeft / jamCardContainer.offsetWidth) * 100;
+        jamCardContainer.style.cursor = 'grabbing'; // Visual cue for dragging
+        console.log("startDrag Initiated"); // Logging the initiation of drag
+    }
+
+    function onDrag(e) {
+        if (!isDragging) {
+            console.log("onDrag called but not dragging"); // Log for debugging
+            return;
+        }
+        const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const dx = currentX - startX; // Change in X from the start of the drag
+        const movePercentage = (dx / jamCardContainer.offsetWidth) * 100;
+        jamCardImage.style.left = `${startLeftPercentage + movePercentage}%`;
+        console.log("Dragging..."); // Logging dragging movement
+    }
+
+    function stopDrag() {
+        if (!isDragging) {
+            console.log("stopDrag called but wasn't dragging"); // Log for debugging
+            return;
+        }
+        isDragging = false;
+        document.body.style.userSelect = ""; // Re-enable text select
+        jamCardContainer.style.cursor = ''; // Reset cursor
+        console.log("Drag stopped"); // Logging the end of drag
+
+        const jamCardContainerWidth = jamCardContainer.offsetWidth;
+        const jamCardFinalLeft = jamCardImage.offsetLeft;
+        const finalPositionPercentage = (jamCardFinalLeft / jamCardContainerWidth) * 100;
+
+        let closestNote = null;
+        let smallestDifference = Infinity;
+        Object.entries(noteToMarginMapping).forEach(([note, marginPercentage]) => {
+            const margin = parseFloat(marginPercentage);
+            const difference = Math.abs(margin - finalPositionPercentage);
+            if (difference < smallestDifference) {
+                closestNote = note;
+                smallestDifference = difference;
+            }
+        });
+
+        if (closestNote) {
+            rootSelect.value = closestNote;
+            rootSelect.dispatchEvent(new Event('change')); // Programmatically trigger the change event
+            console.log(`Changed root to ${closestNote}`);
+        }
+    }
+
+    // Attaching event listeners
+    console.log("Attaching mousedown event listener to jamCardImage...");
+    jamCardImage.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('mouseup', stopDrag);
+    console.log("Attaching touchstart event listener to jamCardImage...");
+    jamCardImage.addEventListener('touchstart', startDrag, { passive: false });
+    document.addEventListener('touchmove', onDrag, { passive: false });
+    document.addEventListener('touchend', stopDrag);
+
+    console.log("Event listeners attached");
+});
+
+
+
+document.addEventListener('keydown', function (event) {
+    if (event.repeat) return; // Prevent multiple triggers for long key presses
+    const note = keyboardToNoteMapping[event.code];
+    if (note) {
+        // Find the keyId corresponding to the note
+        const keyId = Object.keys(noteMapping).find(key => noteMapping[key] === note);
+        if (keyId) {
+            playNote(note, keyId);
+            // Update the note display
+            const noteDisplay = document.getElementById('noteDisplay');
+            noteDisplay.textContent = note; // Or use noteName for the formatted name
+        }
+    }
+});
+
+
+
+
+
+// Other UI initialization code can go here
+
+// Optionally resume the audio context if using Web Audio API elsewhere
+if (audioContext && audioContext.state === 'suspended') {
+    audioContext.resume().then(() => {
+        console.log('AudioContext resumed successfully.');
+    });
+}
+
+
+
+function checkOrientation() {
+    const orientationAlert = document.getElementById('orientationAlert');
+    const piano = document.querySelector('.piano');
+    const controls = document.querySelector('.controls');
+    const options = document.querySelector('.options'); // Selector for the options container
+    const jamCardContainer = document.getElementById('jamCardContainer');
+    const rootSelect = document.getElementById('rootSelect');
+    const jamCardSelect = document.getElementById('jamCardSelect');
+
+    // Determine if a jam card is selected
+    const isJamCardSelected = jamCardSelect && jamCardSelect.value !== 'none';
+    const isRootSelected = rootSelect && rootSelect.value !== 'none';
+
+    if (window.innerHeight > window.innerWidth) {
+        // In Portrait Mode
+        orientationAlert.style.display = 'block';
+        h1.style.display = 'none';
+        piano.style.display = 'none';
+        mainContainer.style.display = 'none';
+        overlay.style.display = 'none';
+        document.body.style.overflow = 'hidden';
+        jamCardContainer.style.display = 'none';
+    } else {
+        // In Landscape Mode
+        orientationAlert.style.display = 'none';
+        h1.style.display = 'block';
+        piano.style.display = 'block';
+        mainContainer.style.display = 'grid';
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'auto';
+        jamCardContainer.style.display = 'block';
+    }
+}
+
+
+
+
+// Ensure the checkOrientation function is called both on page load and on window resize.
+window.addEventListener('load', checkOrientation);
+window.addEventListener('resize', checkOrientation);
