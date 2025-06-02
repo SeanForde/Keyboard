@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Music Will Interactive Piano</title>
+    <title>Music Will's JamCard Keyboard</title>
     <link rel="stylesheet" type="text/css" href="Keyboard15.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,6 +11,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
 </head>
+
+<link rel="icon" href="/mwFavicon.png" type="image/jpeg">
 
 <body>
     <!-- Orientation Alert -->
@@ -24,6 +26,8 @@
     </div>
     <!-- Overlay -->
     <div id="overlay" class="overlay">
+        <h2>Introducing the Jam Card Keyboard!</h2>
+
         <button id="startButton">Let's Jam!</button>
     </div>
 
@@ -63,7 +67,6 @@
                     <option value="blues">Scale: Blues</option>
                     <option value="chordsMajor">Chords: Major</option>
                     <option value="chordsMinor">Chords: Minor</option>
-                    <option value="chordsDominant7th">Chords: Dominant 7th</option>
                     <option value="progression145">Progression: 1-4-5</option>
                     <option value="progression1456">Progression: 1-4-5-6</option>
                 </select>
@@ -93,12 +96,13 @@
 
 
                 <button id="copySettingsButton">Copy Settings</button>
+
+
             </div>
         </div>
         <div class="keyboard-panel">
             <div class="piano">
                 <div class="options">
-                    <div id="noteDisplay">--</div>
                     <div class="instruments">
                         <select id="instrumentSelect">
                             <option value="Piano">Piano</option>
@@ -106,6 +110,7 @@
                             <option value="Wurlitzer">Wurlitzer</option>
                         </select>
                     </div>
+                    <div id="noteDisplay">--</div>
                     <div class="jamAlongs">
                         <select id="jamAlongSelect">
                             <option value="Beat 1">Beat 1</option>
@@ -117,6 +122,16 @@
                     <div class="play">
                         <button id="playStopButton">Play</button>
                     </div>
+
+                    <!-- Piano Volume Control -->
+                    <div class="slider-container">
+                        <label class="sliderLabels" for="pianoVolume">Piano Volume:</label>
+                        <input type="range" id="pianoVolume" min="0" max="1" step="0.01" value="1.0">
+                    </div>
+                    <div>
+                        <!-- Empty Space in Controls Section -->
+                    </div>
+
                     <div class="option-row">
                         <div class="slider-container">
                             <label for="jamAlongVolume">Volume:</label>
@@ -138,68 +153,66 @@
                 <!-- Keyboard Key Labels Above Piano Keys -->
 
                 <div class="keyboard-labels lower-octave">
-                    <div class="key-label hidden">Z</div>
-                    <div class="key-label hidden">S</div>
-                    <div class="key-label hidden">X</div>
-                    <div class="key-label hidden">D</div>
-                    <div class="key-label hidden">C</div>
-                    <div class="key-label hidden"></div>
-                    <div class="key-label hidden">V</div>
-                    <div class="key-label hidden">G</div>
-                    <div class="key-label hidden">B</div>
-                    <div class="key-label hidden">H</div>
-                    <div class="key-label hidden">N</div>
-                    <div class="key-label hidden">J</div>
-                    <div class="key-label hidden">M</div>
-                    <div class="key-label hidden"></div>
-                    <div class="key-label">W</div>
-                    <!-- Mapping continues for all keys up to C5 -->
-                    <div class="key-label">3</div>
-                    <div class="key-label">E</div>
-                    <div class="key-label">4</div>
-                    <div class="key-label">R</div>
-                    <div class="key-label hidden"></div>
-                    <div class="key-label">T</div>
-                    <div class="key-label">6</div>
-                    <div class="key-label">Y</div>
-                    <div class="key-label">7</div>
-                    <div class="key-label">U</div>
-                    <div class="key-label">8</div>
-                    <div class="key-label">I</div>
-                    <div class="key-label hidden"></div>
-                    <div class="key-label">O</div>
+                    <div class="key-label larger-key-labels hidden">Z</div>
+                    <div class="key-label larger-key-labels hidden">S</div>
+                    <div class="key-label larger-key-labels hidden">X</div>
+                    <div class="key-label larger-key-labels hidden">D</div>
+                    <div class="key-label larger-key-labels hidden">C</div>
+
+                    <div class="key-label smaller-key-labels hidden">V</div>
+                    <div class="key-label smaller-key-labels hidden">G</div>
+                    <div class="key-label smaller-key-labels hidden">B</div>
+                    <div class="key-label smaller-key-labels hidden">H</div>
+                    <div class="key-label smaller-key-labels hidden">N</div>
+                    <div class="key-label smaller-key-labels hidden">J</div>
+                    <div class="key-label smaller-key-labels hidden">M</div>
+
+                    <div class="key-label larger-key-labels">W</div>
+                    <div class="key-label larger-key-labels">3</div>
+                    <div class="key-label larger-key-labels">E</div>
+                    <div class="key-label larger-key-labels">4</div>
+                    <div class="key-label larger-key-labels">R</div>
+
+                    <div class="key-label smaller-key-labels">T</div>
+                    <div class="key-label smaller-key-labels">6</div>
+                    <div class="key-label smaller-key-labels">Y</div>
+                    <div class="key-label smaller-key-labels">7</div>
+                    <div class="key-label smaller-key-labels">U</div>
+                    <div class="key-label smaller-key-labels">8</div>
+                    <div class="key-label smaller-key-labels">I</div>
+
+                    <div class="key-label larger-key-labels">O</div>
                 </div>
                 <div class="keyboard-labels">
-                    <div class="key-label">Z</div>
-                    <div class="key-label">S</div>
-                    <div class="key-label">X</div>
-                    <div class="key-label">D</div>
-                    <div class="key-label">C</div>
-                    <div class="key-label hidden"></div>
-                    <div class="key-label">V</div>
-                    <div class="key-label">G</div>
-                    <div class="key-label">B</div>
-                    <div class="key-label">H</div>
-                    <div class="key-label">N</div>
-                    <div class="key-label">J</div>
-                    <div class="key-label">M</div>
-                    <div class="key-label hidden"></div>
-                    <div class="key-label"> , </div>
-                    <!-- Mapping continues for all keys up to C5 -->
-                    <div class="key-label hidden">3</div>
-                    <div class="key-label hidden">E</div>
-                    <div class="key-label hidden">4</div>
-                    <div class="key-label hidden">R</div>
-                    <div class="key-label hidden"></div>
-                    <div class="key-label hidden">T</div>
-                    <div class="key-label hidden">6</div>
-                    <div class="key-label hidden">Y</div>
-                    <div class="key-label hidden">7</div>
-                    <div class="key-label hidden">U</div>
-                    <div class="key-label hidden">8</div>
-                    <div class="key-label hidden">I</div>
-                    <div class="key-label hidden"></div>
-                    <div class="key-label hidden">O</div>
+                    <div class="key-label larger-key-labels">Z</div>
+                    <div class="key-label larger-key-labels">S</div>
+                    <div class="key-label larger-key-labels">X</div>
+                    <div class="key-label larger-key-labels">D</div>
+                    <div class="key-label larger-key-labels">C</div>
+
+                    <div class="key-label smaller-key-labels">V</div>
+                    <div class="key-label smaller-key-labels">G</div>
+                    <div class="key-label smaller-key-labels">B</div>
+                    <div class="key-label smaller-key-labels">H</div>
+                    <div class="key-label smaller-key-labels">N</div>
+                    <div class="key-label smaller-key-labels">J</div>
+                    <div class="key-label smaller-key-labels">M</div>
+
+                    <div class="key-label larger-key-labels"> , </div>
+                    <div class="key-label larger-key-labels hidden">3</div>
+                    <div class="key-label larger-key-labels hidden">E</div>
+                    <div class="key-label larger-key-labels hidden">4</div>
+                    <div class="key-label larger-key-labels hidden">R</div>
+
+                    <div class="key-label smaller-key-labels hidden">T</div>
+                    <div class="key-label smaller-key-labels hidden">6</div>
+                    <div class="key-label smaller-key-labels hidden">Y</div>
+                    <div class="key-label smaller-key-labels hidden">7</div>
+                    <div class="key-label smaller-key-labels hidden">U</div>
+                    <div class="key-label smaller-key-labels hidden">8</div>
+                    <div class="key-label smaller-key-labels hidden">I</div>
+
+                    <div class="key-label larger-key-labels hidden">O</div>
                 </div>
                 <!-- Key Containers -->
                 <div class="smallerKeys">
