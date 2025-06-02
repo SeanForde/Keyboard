@@ -7,6 +7,7 @@ body {
     /* Prevent scrolling */
 }
 
+
 .controls label,
 .controls button,
 .controls select {
@@ -29,14 +30,20 @@ header {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.9);
     /* Semi-transparent black */
+    color: white;
     z-index: 10;
     /* Ensure it's above other content */
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
+}
+
+.overlay > p {
+    text-align: center;
+    width: 80%;
 }
 
 #startButton {
@@ -80,6 +87,7 @@ h1 {
     .jamCardContainer {
         border: 0px solid #42E2D9;
         border-radius: 0px;
+
         position: relative;
         /* Ensure it's positioned */
         overflow: visible;
@@ -111,7 +119,7 @@ h1 {
 
     .main-container,
     .controls {
-        display: block;
+        display: flex;
     }
 }
 
@@ -130,11 +138,11 @@ body {
 
 .controls {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(8, 1fr);
     /* 6 columns */
     grid-template-rows: auto auto auto;
     /* 3 rows */
-    gap: 5px;
+    gap: 5%;
     /* Space between grid items */
     padding: 10px;
     /* Padding around the grid */
@@ -146,19 +154,23 @@ body {
     color: #FFFFFF;
     /* White text for better contrast */
     width: 80%;
+    text-align: center;
+}
+
+.slider-container label {
+    justify-content: center;
 }
 
 .roots,
 .jam-cards,
 .jam-card-message {
-    margin-bottom: 5px;
+    margin-bottom: 5%;
+    text-align: center !important;
 }
 
 .jamCardContainer {
     border: 0px solid #42E2D9;
     border-radius: 0px;
-    position: relative;
-    /* Ensure it's positioned */
     overflow: visible;
     /* Allow contents to extend visually */
     /* Define a width if not already set, or ensure it's controlled by parent elements */
@@ -173,10 +185,7 @@ body {
     width: 70%;
     /* Your existing style */
     z-index: 9;
-
 }
-
-
 
 .title {
     font-size: 16px;
@@ -220,8 +229,6 @@ body {
     /* Adjust size as needed */
     margin: 1.5%;
     /* Space between boxes */
-    background-color: #f0f0f0;
-    /* Light grey background */
     color: #333;
     /* Dark text for contrast */
     font-size: 16px;
@@ -233,8 +240,8 @@ body {
     border: none;
     /* Remove default border */
     cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
-
 
 /* Initially hidden, space maintained */
 .progression-boxes {
@@ -242,6 +249,10 @@ body {
     opacity: 0;
 }
 
+.active-box {
+    background-color: #42E2D9 !important; /* Highlight color */
+    color: white;
+}
 
 .instrument-note-display-controls {
     background: #8C52DB;
@@ -253,7 +264,7 @@ body {
     text-align: center;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
     /* Subtle shadow for depth */
-    margin: 5px 10px;
+    margin: 10% 10%;
 }
 
 /* Basic styling for dropdown selects */
@@ -273,7 +284,7 @@ body {
     /* Legible text */
     color: #333;
     /* Dark text for readability */
-    width: calc(100% - 10px);
+    width: 90%;
     /* Full width minus margin */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     /* Slight shadow for depth */
@@ -357,6 +368,7 @@ margin-top: 3px;
     gap: 1%;
     height: auto;
     width: 98%;
+    position: relative;
 }
 
 
@@ -370,7 +382,33 @@ margin-top: 3px;
     border: 3px solid #42E2D9;
     border-radius: 10px;
     /* Accent border color */
-    text-align:center;
+    text-align: center;
+}
+
+.jam-card-controls {
+    text-align: center !important;
+    height: 100%;
+    position: relative;
+}
+
+#feedbackLink {
+    position: absolute;
+    bottom: 20px;
+    color: #ffffff;
+    left: 0%;
+    right: 0%;
+}
+
+.jam-cards {
+    width: 100%; /* or a specific width */
+    text-align: center !important;
+    display: block; /* Make sure it's a block element to center properly */
+}
+
+.roots {
+    width: 100%; /* or a specific width */
+    text-align: center !important;
+    display: block; /* Make sure it's a block element to center properly */
 }
 
 .keyboard-panel {
@@ -385,6 +423,7 @@ margin-top: 3px;
 }
 
 .piano {
+    
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
@@ -413,8 +452,6 @@ margin-top: 3px;
     width: 5vw;
     /* Adjust as needed */
 }
-
-
 
 .white-key {
     height: 40vh;
@@ -584,11 +621,14 @@ margin-top: 3px;
     /* Prevents the note name from interfering with key clicks */
 }
 
+
+
 .options {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     justify-content: center;
     flex-direction: row;
+    text-align: center;
     padding: 10px;
     border-radius: 10px;
     margin-top: 0px;
@@ -598,7 +638,7 @@ margin-top: 3px;
 .options label {
     display: flex;
     align-items: center;
-    margin: 0 12px;
+    margin: 0;
     /* Adjust spacing between each label */
     cursor: pointer;
     color: white;
@@ -607,8 +647,9 @@ margin-top: 3px;
 }
 
 
+
 #noteDisplay {
-  lign-items: center;
+  align-items: center;
   background: #BAFEFF;
   border-radius: 2px;
   color: #101D32;
@@ -621,7 +662,7 @@ margin-top: 3px;
   text-overflow: ellipsis;
   text-align: center;
   white-space: nowrap;
-  width: 100px;
+  width: 75%;
 }
 
 
@@ -683,9 +724,9 @@ span.toggle-checked {
 
 .keyboard-labels {
     display: grid;
-    grid-template-columns: repeat(29, 1fr);
+    grid-template-columns: repeat(25, 1fr);
     /* Adjust the number 25 to match the number of keys/labels */
-    gap: 2px;
+    gap: 0%;
     /* Space between labels, adjust as needed */
     width: 98%;
     position: relative;
@@ -693,7 +734,7 @@ span.toggle-checked {
     /* This ensures the labels stretch to match the piano's width */
     justify-items: center;
     /* Centers the labels in their grid cells */
-    margin-left: 1%;
+
     margin-bottom: 5px;
     /* Adds some space between the labels and the keys */
 }
@@ -719,6 +760,18 @@ span.toggle-checked {
     /* Adds a subtle shadow to give the keys a 3D effect */
     width: 1.5vh;
     height: 1.5vh;
+}
+
+/* Add spacing for larger-key-labels */
+.larger-key-labels {
+    width: 50%; /* Adjust the width */
+    padding-left: 1%;
+    padding-right: 1%;
+}
+
+/* Add spacing for smaller-key-labels */
+.smaller-key-labels {
+    margin: 1% !important; /* Adjust the value as needed */
 }
 
 select {
@@ -752,7 +805,7 @@ select {
 
 /* Checkbox labels */
 label {
-    display: block;
+    display: flex;
     margin: 5px 0;
     cursor: pointer;
 }
